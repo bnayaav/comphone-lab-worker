@@ -1,0 +1,1701 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#0b3d3a">
+<title>מעבדה · ComPhone</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #f6f3ec;
+  --bg-grain: #efeadf;
+  --surface: #ffffff;
+  --surface-2: #faf8f3;
+  --ink: #0a0a0a;
+  --ink-2: #3f3f3f;
+  --ink-3: #757575;
+  --line: #e4dfd4;
+  --line-2: #d4cfc3;
+  --brand: #0b3d3a;
+  --brand-2: #0f5650;
+  --brand-soft: #d6e7e3;
+  --accent: #ea580c;
+  --accent-soft: #fff0e4;
+  --success: #047857;
+  --success-soft: #d1fae5;
+  --warn: #b45309;
+  --warn-soft: #fef3c7;
+  --danger: #b91c1c;
+  --danger-soft: #fee2e2;
+  --muted: #6b7280;
+  --muted-soft: #e5e7eb;
+  --purple: #6d28d9;
+  --purple-soft: #ede9fe;
+  --radius: 14px;
+  --radius-sm: 8px;
+  --shadow-sm: 0 1px 2px rgba(11,61,58,.04), 0 1px 3px rgba(11,61,58,.06);
+  --shadow-md: 0 4px 6px -1px rgba(11,61,58,.05), 0 2px 4px -2px rgba(11,61,58,.05);
+  --shadow-lg: 0 10px 15px -3px rgba(11,61,58,.08), 0 4px 6px -4px rgba(11,61,58,.05);
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+html, body {
+  font-family: 'Rubik', -apple-system, system-ui, sans-serif;
+  background: var(--bg);
+  color: var(--ink);
+  font-feature-settings: "kern", "liga";
+  -webkit-font-smoothing: antialiased;
+  font-size: 15px;
+  line-height: 1.5;
+  min-height: 100vh;
+}
+
+body {
+  background-image:
+    radial-gradient(circle at 20% 0%, #e8f0ed 0%, transparent 40%),
+    radial-gradient(circle at 90% 10%, #fbe9d7 0%, transparent 35%),
+    linear-gradient(var(--bg), var(--bg));
+  background-attachment: fixed;
+}
+
+code, .mono { font-family: 'JetBrains Mono', ui-monospace, monospace; font-size: .85em; }
+
+/* ===== Layout ===== */
+.app {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 16px 16px 120px;
+}
+
+.topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 14px 18px;
+  background: rgba(255,255,255,.7);
+  backdrop-filter: blur(12px);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-sm);
+  margin-bottom: 18px;
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.brand-mark {
+  width: 38px;
+  height: 38px;
+  border-radius: 11px;
+  background: linear-gradient(135deg, var(--brand), var(--brand-2));
+  display: grid;
+  place-items: center;
+  color: #e9f3f1;
+  font-weight: 800;
+  font-size: 15px;
+  letter-spacing: -.02em;
+  box-shadow: inset 0 -2px 0 rgba(0,0,0,.15), 0 4px 10px rgba(11,61,58,.25);
+}
+
+.brand-text h1 {
+  font-size: 16px;
+  font-weight: 700;
+  letter-spacing: -.01em;
+}
+.brand-text .sub {
+  font-size: 12px;
+  color: var(--ink-3);
+  font-weight: 500;
+}
+
+.topbar-actions {
+  display: flex;
+  gap: 6px;
+}
+
+.icon-btn {
+  width: 38px;
+  height: 38px;
+  border-radius: 10px;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+  color: var(--ink-2);
+  transition: all .15s;
+  font-size: 16px;
+}
+.icon-btn:hover { background: var(--brand-soft); color: var(--brand); border-color: var(--brand-soft); }
+.icon-btn.has-badge { position: relative; }
+.icon-btn .badge {
+  position: absolute;
+  top: -3px;
+  left: -3px;
+  min-width: 16px;
+  height: 16px;
+  padding: 0 4px;
+  background: var(--accent);
+  color: white;
+  font-size: 10px;
+  font-weight: 700;
+  border-radius: 8px;
+  display: grid;
+  place-items: center;
+  border: 2px solid var(--bg);
+}
+
+/* ===== Stats ===== */
+.stats {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 10px;
+  margin-bottom: 18px;
+}
+.stat {
+  padding: 14px 16px;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  position: relative;
+  overflow: hidden;
+  transition: all .15s;
+}
+.stat:hover { border-color: var(--line-2); box-shadow: var(--shadow-md); }
+.stat .label {
+  font-size: 11.5px;
+  color: var(--ink-3);
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: .05em;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.stat .value {
+  font-size: 26px;
+  font-weight: 700;
+  margin-top: 4px;
+  letter-spacing: -.02em;
+  font-variant-numeric: tabular-nums;
+}
+.stat .sub {
+  font-size: 11.5px;
+  color: var(--ink-3);
+  margin-top: 2px;
+  font-weight: 500;
+}
+.stat.accent::before {
+  content: '';
+  position: absolute;
+  right: 0; top: 0; bottom: 0;
+  width: 4px;
+  background: var(--accent);
+}
+.stat.brand::before {
+  content: '';
+  position: absolute;
+  right: 0; top: 0; bottom: 0;
+  width: 4px;
+  background: var(--brand);
+}
+.stat.success::before {
+  content: '';
+  position: absolute;
+  right: 0; top: 0; bottom: 0;
+  width: 4px;
+  background: var(--success);
+}
+
+/* ===== Banner ===== */
+.banner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px 16px;
+  background: linear-gradient(135deg, #0b3d3a, #0f5650);
+  color: #e9f3f1;
+  border-radius: var(--radius);
+  margin-bottom: 14px;
+  box-shadow: var(--shadow-md);
+  position: relative;
+  overflow: hidden;
+}
+.banner::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(circle at 90% 50%, rgba(234,88,12,.18), transparent 50%);
+  pointer-events: none;
+}
+.banner-text {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 13.5px;
+  position: relative;
+  z-index: 1;
+}
+.banner-text b { font-weight: 700; }
+.banner .mode-pill {
+  background: rgba(255,255,255,.15);
+  padding: 3px 9px;
+  border-radius: 999px;
+  font-size: 11.5px;
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+.banner .mode-pill::before {
+  content: '';
+  width: 6px; height: 6px;
+  background: #fbbf24;
+  border-radius: 50%;
+  display: inline-block;
+}
+.banner .mode-pill.live::before { background: #34d399; box-shadow: 0 0 0 3px rgba(52,211,153,.25); }
+.banner-actions {
+  display: flex;
+  gap: 6px;
+  position: relative;
+  z-index: 1;
+}
+.banner-btn {
+  background: rgba(255,255,255,.12);
+  border: 1px solid rgba(255,255,255,.18);
+  color: #e9f3f1;
+  padding: 7px 11px;
+  border-radius: 9px;
+  font-size: 12.5px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all .15s;
+  font-family: inherit;
+}
+.banner-btn:hover { background: rgba(255,255,255,.22); }
+
+/* ===== Filters ===== */
+.filters {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 14px;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  margin-bottom: 14px;
+}
+.filter-row {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+.search {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  background: var(--surface-2);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 0 12px;
+  transition: all .15s;
+}
+.search:focus-within {
+  border-color: var(--brand);
+  background: white;
+  box-shadow: 0 0 0 3px var(--brand-soft);
+}
+.search svg { color: var(--ink-3); flex-shrink: 0; }
+.search input {
+  flex: 1;
+  border: none;
+  background: transparent;
+  padding: 10px 8px;
+  font-family: inherit;
+  font-size: 14px;
+  color: var(--ink);
+  outline: none;
+}
+.sort {
+  background: var(--surface-2);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 9px 12px;
+  font-family: inherit;
+  font-size: 13px;
+  color: var(--ink-2);
+  cursor: pointer;
+  outline: none;
+}
+
+.chips {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+.chip {
+  background: var(--surface-2);
+  border: 1px solid var(--line);
+  padding: 6px 12px;
+  border-radius: 999px;
+  font-size: 12.5px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all .15s;
+  color: var(--ink-2);
+  font-family: inherit;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+.chip:hover { border-color: var(--line-2); }
+.chip.active {
+  background: var(--ink);
+  color: white;
+  border-color: var(--ink);
+}
+.chip .count {
+  background: rgba(0,0,0,.08);
+  padding: 1px 6px;
+  border-radius: 8px;
+  font-size: 11px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+.chip.active .count { background: rgba(255,255,255,.2); color: white; }
+
+/* ===== Results count ===== */
+.results-meta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 4px;
+  margin-bottom: 12px;
+  font-size: 12.5px;
+  color: var(--ink-3);
+}
+.results-meta b { color: var(--ink); font-weight: 600; }
+
+/* ===== Repair Cards ===== */
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+  gap: 12px;
+}
+
+.card {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  cursor: pointer;
+  transition: all .15s;
+  position: relative;
+}
+.card:hover {
+  border-color: var(--line-2);
+  box-shadow: var(--shadow-md);
+  transform: translateY(-1px);
+}
+.card::before {
+  content: '';
+  position: absolute;
+  right: 0; top: 14px;
+  bottom: 14px;
+  width: 3px;
+  border-radius: 3px;
+  background: var(--line);
+}
+.card[data-s="תוקן"]::before { background: var(--warn); }
+.card[data-s="נמסר ללקוח"]::before { background: var(--success); }
+.card[data-s="מושבת"]::before { background: var(--danger); }
+.card[data-s="ממתין"]::before { background: var(--muted); }
+.card[data-s="ממתין לתשובה מלקוח"]::before { background: var(--purple); }
+
+.card.needs-wa::after {
+  content: 'מומלץ לשלוח וואטסאפ';
+  position: absolute;
+  top: -1px;
+  right: -1px;
+  background: var(--accent);
+  color: white;
+  font-size: 10.5px;
+  font-weight: 600;
+  padding: 3px 9px;
+  border-radius: var(--radius) 0 var(--radius-sm) 0;
+}
+
+.card-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.card-name {
+  font-weight: 700;
+  font-size: 15.5px;
+  letter-spacing: -.01em;
+  line-height: 1.25;
+}
+.card-meta {
+  font-size: 12px;
+  color: var(--ink-3);
+  margin-top: 2px;
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+.card-meta .dot { opacity: .5; }
+
+.status-pill {
+  font-size: 11px;
+  font-weight: 600;
+  padding: 3px 9px;
+  border-radius: 999px;
+  white-space: nowrap;
+  letter-spacing: -.01em;
+}
+.s-תוקן { background: var(--warn-soft); color: var(--warn); }
+.s-נמסר_ללקוח { background: var(--success-soft); color: var(--success); }
+.s-מושבת { background: var(--danger-soft); color: var(--danger); }
+.s-ממתין { background: var(--muted-soft); color: var(--muted); }
+.s-ממתין_לתשובה_מלקוח { background: var(--purple-soft); color: var(--purple); }
+
+.card-device {
+  background: var(--brand-soft);
+  color: var(--brand);
+  padding: 6px 10px;
+  border-radius: 8px;
+  font-size: 12.5px;
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  align-self: flex-start;
+}
+
+.field {
+  font-size: 13px;
+  line-height: 1.45;
+}
+.field .k {
+  font-size: 11px;
+  color: var(--ink-3);
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: .04em;
+  margin-bottom: 2px;
+}
+.field .v {
+  color: var(--ink-2);
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+.field.clip .v {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.card-foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-top: 10px;
+  border-top: 1px dashed var(--line);
+  margin-top: 2px;
+}
+.price {
+  font-size: 17px;
+  font-weight: 700;
+  letter-spacing: -.02em;
+  font-variant-numeric: tabular-nums;
+}
+.price.zero { color: var(--ink-3); }
+.price .cur { color: var(--ink-3); font-size: 12px; font-weight: 500; margin-right: 2px; }
+
+.wa-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: #25D366;
+  color: white;
+  padding: 7px 12px;
+  border-radius: 8px;
+  font-size: 12.5px;
+  font-weight: 600;
+  border: none;
+  cursor: pointer;
+  font-family: inherit;
+  transition: all .15s;
+}
+.wa-btn:hover { background: #1ebe5a; transform: translateY(-1px); box-shadow: 0 4px 10px rgba(37,211,102,.3); }
+.wa-btn.sent { background: var(--muted); }
+.wa-btn.sent:hover { background: var(--muted); transform: none; box-shadow: none; }
+
+/* ===== Modal ===== */
+.overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(10,10,10,.5);
+  backdrop-filter: blur(4px);
+  display: grid;
+  place-items: center;
+  padding: 16px;
+  z-index: 50;
+  animation: fade .15s ease;
+}
+@keyframes fade { from { opacity: 0; } }
+.modal {
+  background: var(--surface);
+  border-radius: 18px;
+  width: 100%;
+  max-width: 560px;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0 25px 50px -12px rgba(0,0,0,.25);
+  animation: pop .2s cubic-bezier(.2,.8,.3,1.1);
+}
+@keyframes pop { from { transform: scale(.95); opacity: 0; } }
+.modal.wide { max-width: 720px; }
+
+.modal-head {
+  padding: 18px 20px 12px;
+  border-bottom: 1px solid var(--line);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  position: sticky;
+  top: 0;
+  background: var(--surface);
+  z-index: 5;
+}
+.modal-head h2 { font-size: 17px; font-weight: 700; letter-spacing: -.01em; }
+.modal-head .sub { font-size: 12.5px; color: var(--ink-3); margin-top: 2px; }
+.close-btn {
+  width: 32px; height: 32px;
+  background: var(--surface-2);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  cursor: pointer;
+  display: grid;
+  place-items: center;
+  color: var(--ink-2);
+  font-size: 18px;
+  font-family: inherit;
+  line-height: 1;
+}
+.close-btn:hover { background: var(--danger-soft); color: var(--danger); border-color: var(--danger-soft); }
+.modal-body { padding: 16px 20px 20px; }
+
+.detail-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-bottom: 14px;
+}
+.detail-grid .field {
+  background: var(--surface-2);
+  padding: 10px 12px;
+  border-radius: 10px;
+  border: 1px solid var(--line);
+}
+.detail-grid .field.wide { grid-column: 1 / -1; }
+
+.preview-box {
+  background: #e8f5e9;
+  background-image:
+    linear-gradient(rgba(255,255,255,.5), rgba(255,255,255,.5)),
+    repeating-linear-gradient(45deg, transparent 0 20px, rgba(0,0,0,.02) 20px 21px);
+  border: 1px solid #c8e6c9;
+  border-radius: 12px;
+  padding: 14px 16px;
+  position: relative;
+}
+.preview-box::before {
+  content: '';
+  position: absolute;
+  top: 12px; right: -6px;
+  border: 8px solid transparent;
+  border-left-color: transparent;
+  border-right-color: #c8e6c9;
+  transform: scaleX(-1);
+}
+.preview-box textarea {
+  width: 100%;
+  background: transparent;
+  border: none;
+  resize: vertical;
+  min-height: 180px;
+  font-family: inherit;
+  font-size: 14px;
+  line-height: 1.55;
+  color: var(--ink);
+  outline: none;
+  white-space: pre-wrap;
+}
+.preview-label {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin: 12px 0 6px;
+  font-size: 12px;
+  color: var(--ink-3);
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: .04em;
+}
+.preview-label .chars { font-variant-numeric: tabular-nums; }
+
+.modal-actions {
+  display: flex;
+  gap: 8px;
+  padding-top: 16px;
+  flex-wrap: wrap;
+}
+.btn {
+  padding: 10px 16px;
+  border-radius: 10px;
+  font-size: 13.5px;
+  font-weight: 600;
+  cursor: pointer;
+  border: 1px solid transparent;
+  font-family: inherit;
+  transition: all .15s;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  text-decoration: none;
+  justify-content: center;
+}
+.btn-primary {
+  background: #25D366;
+  color: white;
+  flex: 1;
+  min-width: 140px;
+}
+.btn-primary:hover { background: #1ebe5a; box-shadow: 0 4px 12px rgba(37,211,102,.3); }
+.btn-primary:disabled { background: var(--muted); cursor: not-allowed; }
+
+.btn-secondary {
+  background: var(--surface-2);
+  border-color: var(--line);
+  color: var(--ink-2);
+}
+.btn-secondary:hover { background: var(--line); }
+
+.btn-ghost {
+  background: transparent;
+  color: var(--ink-2);
+}
+.btn-ghost:hover { background: var(--surface-2); }
+
+.tabs {
+  display: flex;
+  gap: 2px;
+  background: var(--surface-2);
+  padding: 3px;
+  border-radius: 10px;
+  border: 1px solid var(--line);
+  margin-bottom: 14px;
+}
+.tab {
+  flex: 1;
+  padding: 8px 12px;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  color: var(--ink-3);
+  text-align: center;
+  background: transparent;
+  border: none;
+  font-family: inherit;
+  transition: all .15s;
+}
+.tab.active { background: var(--surface); color: var(--ink); box-shadow: var(--shadow-sm); }
+
+.form-field { margin-bottom: 12px; }
+.form-field label {
+  display: block;
+  font-size: 12.5px;
+  font-weight: 500;
+  color: var(--ink-2);
+  margin-bottom: 5px;
+}
+.form-field input, .form-field textarea, .form-field select {
+  width: 100%;
+  padding: 9px 12px;
+  border: 1px solid var(--line);
+  border-radius: 9px;
+  font-family: inherit;
+  font-size: 13.5px;
+  color: var(--ink);
+  background: white;
+  outline: none;
+  transition: all .15s;
+}
+.form-field input:focus, .form-field textarea:focus, .form-field select:focus {
+  border-color: var(--brand);
+  box-shadow: 0 0 0 3px var(--brand-soft);
+}
+.form-field textarea { resize: vertical; min-height: 80px; font-family: inherit; }
+.form-field .hint { font-size: 11.5px; color: var(--ink-3); margin-top: 4px; }
+
+.var-chips {
+  display: flex;
+  gap: 5px;
+  flex-wrap: wrap;
+  margin-top: 6px;
+}
+.var-chip {
+  background: var(--brand-soft);
+  color: var(--brand);
+  padding: 3px 9px;
+  border-radius: 6px;
+  font-size: 11.5px;
+  font-weight: 600;
+  cursor: pointer;
+  border: none;
+  font-family: 'JetBrains Mono', monospace;
+  transition: all .12s;
+}
+.var-chip:hover { background: var(--brand); color: white; }
+
+.log-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--line);
+  font-size: 13px;
+}
+.log-item:last-child { border-bottom: none; }
+.log-item .when { color: var(--ink-3); font-size: 11.5px; font-variant-numeric: tabular-nums; }
+.log-method {
+  font-size: 10.5px;
+  padding: 2px 7px;
+  border-radius: 6px;
+  background: var(--muted-soft);
+  color: var(--ink-2);
+  font-weight: 600;
+}
+.log-method.api { background: var(--brand-soft); color: var(--brand); }
+
+.empty {
+  text-align: center;
+  padding: 40px 20px;
+  color: var(--ink-3);
+}
+.empty .big { font-size: 36px; margin-bottom: 8px; }
+
+.toast {
+  position: fixed;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--ink);
+  color: white;
+  padding: 12px 20px;
+  border-radius: 10px;
+  font-size: 13.5px;
+  font-weight: 500;
+  z-index: 100;
+  animation: toast-in .2s;
+  box-shadow: 0 10px 25px rgba(0,0,0,.25);
+}
+@keyframes toast-in { from { transform: translate(-50%, 20px); opacity: 0; } }
+
+/* ===== Responsive ===== */
+@media (max-width: 720px) {
+  .app { padding: 10px 10px 80px; }
+  .stats { grid-template-columns: repeat(2, 1fr); }
+  .stat .value { font-size: 22px; }
+  .banner { flex-direction: column; align-items: flex-start; }
+  .grid { grid-template-columns: 1fr; }
+  .detail-grid { grid-template-columns: 1fr; }
+  .topbar { padding: 10px 12px; }
+  .brand-text h1 { font-size: 15px; }
+  .filter-row { flex-wrap: wrap; }
+  .sort { flex: 1; }
+}
+
+@media (max-width: 420px) {
+  .stats { grid-template-columns: 1fr 1fr; }
+}
+
+.hidden { display: none !important; }
+</style>
+</head>
+<body>
+
+<div class="app">
+
+  <!-- Top Bar -->
+  <div class="topbar">
+    <div class="brand">
+      <div class="brand-mark">CP</div>
+      <div class="brand-text">
+        <h1>מעבדת תיקונים · ComPhone</h1>
+        <div class="sub">סניף 2 · שליחת וואטסאפ ללקוחות</div>
+      </div>
+    </div>
+    <div class="topbar-actions">
+      <button class="icon-btn has-badge" id="btnLog" title="יומן שליחות">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 12a9 9 0 1 0 9-9"/><path d="M3 4v5h5"/><path d="M12 7v5l4 2"/></svg>
+        <span class="badge hidden" id="logBadge">0</span>
+      </button>
+      <button class="icon-btn" id="btnTemplate" title="תבנית הודעה">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 4h16v16H4z"/><path d="M4 9h16"/><path d="M9 4v16"/></svg>
+      </button>
+      <button class="icon-btn" id="btnSettings" title="הגדרות">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09a1.65 1.65 0 0 0-1-1.51 1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09a1.65 1.65 0 0 0 1.51-1 1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+      </button>
+    </div>
+  </div>
+
+  <!-- Stats -->
+  <div class="stats">
+    <div class="stat brand">
+      <div class="label">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><rect x="5" y="2" width="14" height="20" rx="2"/><path d="M11 18h2"/></svg>
+        סה"כ תיקונים
+      </div>
+      <div class="value" id="sTotal">0</div>
+      <div class="sub" id="sTotalSub">מתוך הנתונים שעלו</div>
+    </div>
+    <div class="stat accent">
+      <div class="label">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+        ממתינים לשליחה
+      </div>
+      <div class="value" id="sNeedsWA">0</div>
+      <div class="sub">תוקן וממתין לאיסוף</div>
+    </div>
+    <div class="stat success">
+      <div class="label">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M20 6 9 17l-5-5"/></svg>
+        נמסרו ללקוח
+      </div>
+      <div class="value" id="sDelivered">0</div>
+      <div class="sub" id="sDeliveredSub">מכלל הרשומות</div>
+    </div>
+    <div class="stat">
+      <div class="label">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M12 2v20"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+        הכנסות
+      </div>
+      <div class="value" id="sRevenue">₪0</div>
+      <div class="sub">חיוב כולל</div>
+    </div>
+  </div>
+
+  <!-- Mode Banner -->
+  <div class="banner">
+    <div class="banner-text">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.37 0 0 5.37 0 12c0 2.11.55 4.19 1.6 6.02L0 24l6.2-1.63A11.93 11.93 0 0 0 12 24c6.63 0 12-5.37 12-12S18.63 0 12 0zm6.14 17.15c-.26.73-1.52 1.39-2.11 1.47-.54.07-1.21.1-1.95-.12-.45-.14-1.03-.33-1.76-.65-3.1-1.34-5.12-4.47-5.27-4.67-.15-.2-1.25-1.66-1.25-3.17s.79-2.25 1.07-2.56c.28-.31.61-.38.82-.38.2 0 .41 0 .58.01.19.01.45-.07.7.53.26.62.88 2.13.96 2.28.08.15.13.33.03.53-.1.2-.15.33-.3.51-.15.18-.32.4-.45.54-.15.15-.31.32-.13.62.17.3.78 1.28 1.67 2.07 1.14 1.02 2.11 1.33 2.41 1.49.3.15.47.13.65-.08.17-.2.75-.87.95-1.17.2-.3.4-.25.67-.15.27.1 1.73.82 2.02.97.3.15.49.22.56.34.08.13.08.73-.18 1.46z"/></svg>
+      <div>
+        <div><b>מצב שליחה:</b> <span id="modeText">wa.me (פתיחה ידנית)</span></div>
+      </div>
+      <span class="mode-pill" id="modePill">ידני</span>
+    </div>
+    <div class="banner-actions">
+      <button class="banner-btn" id="btnTemplate2">ערוך תבנית</button>
+      <button class="banner-btn" id="btnSettings2">הגדר Meta API</button>
+    </div>
+  </div>
+
+  <!-- Filters -->
+  <div class="filters">
+    <div class="filter-row">
+      <div class="search">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
+        <input id="searchBox" placeholder="חיפוש לפי שם / טלפון / דגם / תקלה / טופס...">
+      </div>
+      <select class="sort" id="sortSel">
+        <option value="recent">חדש → ישן</option>
+        <option value="oldest">ישן → חדש</option>
+        <option value="charge-desc">חיוב גבוה → נמוך</option>
+        <option value="charge-asc">חיוב נמוך → גבוה</option>
+        <option value="name">לפי שם</option>
+        <option value="waiting">זמן המתנה ארוך ביותר</option>
+      </select>
+    </div>
+    <div class="chips" id="chipsRow"></div>
+  </div>
+
+  <div class="results-meta">
+    <div><b id="resCount">0</b> תוצאות</div>
+    <div id="resNote"></div>
+  </div>
+
+  <!-- Grid -->
+  <div class="grid" id="grid"></div>
+  <div class="empty hidden" id="empty">
+    <div class="big">🔍</div>
+    <div>לא נמצאו תיקונים העונים על הסינון</div>
+  </div>
+
+</div>
+
+<div id="modalRoot"></div>
+<div id="toastRoot"></div>
+
+<!-- ============================================= -->
+<!-- DATA: Embedded from NewOrder report           -->
+<!-- ============================================= -->
+<script>
+window.REPAIRS_DATA = [{"form":222176,"name":"אריאל מרקז","phone":"0585938196","device":"A52","issue":"הטלפון לא נדלק ולא נטען. \nשקע טעינה","fixed":"בוצע חיבור פלטים","internal":null,"charge":180,"parts":null,"cost":0,"imei":null,"status":"נמסר ללקוח","received":"01/03/2026","delivered":"02/03/2026 15:25","waitDays":0,"labHours":29,"receivedBy":9924,"custType":"פרטי","insurance":0,"branch":2},{"form":222177,"name":"בני טנא","phone":"0537797757","device":"שיאומי","issue":"ניקוי ווירוסים","fixed":null,"internal":null,"charge":0,"parts":null,"cost":0,"imei":null,"status":"נמסר ללקוח","received":"01/03/2026","delivered":"01/03/2026 15:29","waitDays":50,"labHours":5,"receivedBy":9906,"custType":"פרטי","insurance":0,"branch":2},{"form":222178,"name":"דוד פריש","phone":"0544910193","device":"העברה למחשב חדש","issue":"העברת מידע למחשב חדש","fixed":"בוצע העברת מידע למחשב חדש","internal":null,"charge":0,"parts":null,"cost":0,"imei":null,"status":"תוקן","received":"01/03/2026","delivered":null,"waitDays":1,"labHours":null,"receivedBy":9924,"custType":"פרטי","insurance":0,"branch":2},{"form":222179,"name":"גרשון סולגניק","phone":"0522439154","device":"A12","issue":"העברת נתונים מטלפון A12 לA17 \nמספר ווטסאפ להעברה 0548865527","fixed":"בוצע העברת מידע","internal":null,"charge":0,"parts":null,"cost":0,"imei":null,"status":"תוקן","received":"01/03/2026","delivered":null,"waitDays":0,"labHours":null,"receivedBy":9924,"custType":"פרטי","insurance":0,"branch":2},{"form":222180,"name":"מדרשת מעלה חבר","phone":"0526070196","device":"S21FE","issue":"בעיות של קליטה","fixed":"בוצע בדיקה למכשיר \nהיה קצר \nאם הבעיה חוסרת וצריך להחליף חלק אז זה יקוזז מהמחיר","internal":null,"charge":180,"parts":null,"cost":0,"imei":null,"status":"נמסר ללקוח","received":"01/03/2026","delivered":"01/03/2026 14:06","waitDays":0,"labHours":0,"receivedBy":9906,"custType":"פרטי","insurance":0,"branch":2},{"form":222181,"name":"איריס","phone":"0584385377","device":"אייפון 13","issue":"מסך שבור\n667788\nלשים מגן UV שולם הכל","fixed":"בוצע החלפת מסך","internal":null,"charge":0,"parts":450,"cost":159.3,"imei":null,"status":"תוקן","received":"01/03/2026","delivered":null,"waitDays":1,"labHours":null,"receivedBy":9906,"custType":"פרטי","insurance":0,"branch":2},{"form":222182,"name":"בן דוד יזמות","phone":"0587045000","device":"A34","issue":"מכשיר לא נטען/נדלק","fixed":null,"internal":null,"charge":0,"parts":null,"cost":0,"imei":null,"status":"מושבת","received":"01/03/2026","delivered":null,"waitDays":50,"labHours":null,"receivedBy":9906,"custType":"פרטי","insurance":0,"branch":2},{"form":222183,"name":"מרדכי סינסון","phone":"0585960558","device":"שיאומי","issue":"ניקוי ווירוסי","fixed":null,"internal":null,"charge":0,"parts":null,"cost":0,"imei":null,"status":"נמסר ללקוח","received":"02/03/2026","delivered":"02/03/2026 13:32","waitDays":49,"labHours":3,"receivedBy":9906,"custType":"פרטי","insurance":0,"branch":2},{"form":222184,"name":"שמחה אליישיב פרידברג","phone":"0585300313","device":"A54","issue":"לא נדלק ולא נטען","fixed":"בוצע החלפת שקע טעינה","internal":null,"charge":0,"parts":250,"cost":70,"imei":null,"status":"נמסר ללקוח","received":"02/03/2026","delivered":"02/03/2026 14:48","waitDays":0,"labHours":4,"receivedBy":9906,"custType":"פרטי","insurance":0,"branch":2},{"form":222185,"name":"אריאל לפידות","phone":"0508911627","device":"ממחשב ישן לחדש","issue":"העברת מידע ממחשב ישן למחשב חדש","fixed":"בוצע העברת מידע","internal":null,"charge":0,"parts":null,"cost":0,"imei":null,"status":"תוקן","received":"02/03/2026","delivered":null,"waitDays":0,"labHours":null,"receivedBy":9924,"custType":"פרטי","insurance":0,"branch":2},{"form":222186,"name":"מוריה וייס","phone":"0523115109","device":"גמבוי","issue":"נשבר שקע טעינה לנסות לתקן","fixed":"מקבל חדש","internal":null,"charge":0,"parts":null,"cost":0,"imei":null,"status":"תוקן","received":"02/03/2026","delivered":null,"waitDays":6,"labHours":null,"receivedBy":9924,"custType":"פרטי","insurance":0,"branch":2},{"form":222187,"name":"דוד לנזר","phone":"0546297002","device":"העברת נתונים F22 פרו","issue":"העברת נתונים מF22 פרו ישן לחדש","fixed":null,"internal":null,"charge":0,"parts":null,"cost":0,"imei":null,"status":"נמסר ללקוח","received":"05/03/2026","delivered":"08/03/2026 10:52","waitDays":46,"labHours":72,"receivedBy":9924,"custType":"פרטי","insurance":0,"branch":2},{"form":222188,"name":"עופר גזית","phone":"0524294295","device":"רדמי","issue":"ניקוי וירוסים","fixed":null,"internal":null,"charge":0,"parts":null,"cost":0,"imei":null,"status":"נמסר ללקוח","received":"05/03/2026","delivered":"08/03/2026 10:52","waitDays":46,"labHours":72,"receivedBy":9924,"custType":"פרטי","insurance":0,"branch":2},{"form":222189,"name":"שיינברג","phone":"0527621196","device":"A12","issue":"לסדר את הצבעים","fixed":"בוצע שינוי הגדרות","internal":null,"charge":80,"parts":null,"cost":0,"imei":null,"status":"נמסר ללקוח","received":"05/03/2026","delivered":"05/03/2026 12:51","waitDays":0,"labHours":2,"receivedBy":9906,"custType":"פרטי","insurance":0,"branch":2},{"form":222190,"name":"אהרון גרנות","phone":"0525090820","device":"טבלט GT","issue":"לא נטען","fixed":null,"internal":null,"charge":300,"parts":null,"cost":0,"imei":null,"status":"נמסר ללקוח","received":"05/03/2026","delivered":"23/03/2026 14:55","waitDays":7,"labHours":432,"receivedBy":9918,"custType":"פרטי","insurance":0,"branch":2},{"form":222191,"name":"מירי זגורי","phone":"0502220457","device":"A54","issue":"מסך מרצד","fixed":"הוחלף מסך ועדיין לא עובד. לקוח לא זמין","internal":null,"charge":0,"parts":null,"cost":0,"imei":null,"status":"מושבת","received":"05/03/2026","delivered":null,"waitDays":46,"labHours":null,"receivedBy":9906,"custType":"פרטי","insurance":0,"branch":2},{"form":222192,"name":"אלנתן גרובס","phone":"0586481496","device":"F21","issue":"החלפת מסך F21","fixed":null,"internal":null,"charge":0,"parts":null,"cost":0,"imei":null,"status":"נמסר ללקוח","received":"06/03/2026","delivered":null,"waitDays":45,"labHours":null,"receivedBy":9924,"custType":"פרטי","insurance":0,"branch":2},{"form":222193,"name":"דודי גרינפלד","phone":"0532839152","device":"A26","issue":"קוד 1212 העברת נתונים לA26","fixed":null,"internal":null,"charge":0,"parts":null,"cost":0,"imei":null,"status":"נמסר ללקוח","received":"06/03/2026","delivered":"08/03/2026 10:52","waitDays":45,"labHours":48,"receivedBy":9924,"custType":"פרטי","insurance":0,"branch":2},{"form":222194,"name":"הדסה כליפא","phone":"0527021556","device":"15C","issue":"קוד 123695\nהעברת נתונים ל15C","fixed":null,"internal":null,"charge":0,"parts":null,"cost":0,"imei":null,"status":"נמסר ללקוח","received":"06/03/2026","delivered":"08/03/2026 10:52","waitDays":45,"labHours":48,"receivedBy":9924,"custType":"פרטי","insurance":0,"branch":2},{"form":222195,"name":"אלכס שיצפטוב","phone":"0545418571","device":"מחשב","issue":"מחשב איטי מדי לא מזהה עכבר","fixed":null,"internal":null,"charge":0,"parts":680,"cost":153.4,"imei":null,"status":"נמסר ללקוח","received":"06/03/2026","delivered":"10/03/2026 16:26","waitDays":4,"labHours":102,"receivedBy":9924,"custType":"פרטי","insurance":0,"branch":2},{"form":222196,"name":"בתיה שחר","phone":"0549545910","device":"נוקיה","issue":"חילוץ תמונות והקלטות ממכשיר הרוס","fixed":"לא ניתם","internal":null,"charge":0,"parts":null,"cost":0,"imei":null,"status":"מושבת","received":"06/03/2026","delivered":null,"waitDays":45,"labHours":null,"receivedBy":9924,"custType":"פרטי","insurance":0,"branch":2},{"form":222197,"name":"רעות ווטרו","phone":"0532499770","device":"אייפון","issue":"העברת נתונים מאייפון לאייפון\n029964380 בית \n0584996352 תפארת","fixed":null,"internal":null,"charge":0,"parts":null,"cost":0,"imei":null,"status":"נמסר ללקוח","received":"08/03/2026","delivered":"08/03/2026 16:31","waitDays":43,"labHours":6,"receivedBy":9924,"custType":"פרטי","insurance":0,"branch":2},{"form":222198,"name":"רעות ווטרו","phone":"0532499770","device":"אייפון","issue":"העברת נתונים אייפון לאייפון\nקוד0000 מס בית 029964380","fixed":null,"internal":null,"charge":150,"parts":null,"cost":0,"imei":null,"status":"נמסר ללקוח","received":"08/03/2026","delivered":"08/03/2026 16:30","waitDays":0,"labHours":6,"receivedBy":9924,"custType":"פרטי","insurance":0,"branch":2},{"form":222199,"name":"איתמר שוויבר","phone":"0586481496","device":"F21","issue":"מסך שבור. החלפת מסך.","fixed":null,"internal":null,"charge":310,"parts":310,"cost":127.3,"imei":null,"status":"נמסר ללקוח","received":"08/03/2026","delivered":"09/03/2026 16:23","waitDays":0,"labHours":30,"receivedBy":9924,"custType":"פרטי","insurance":0,"branch":2},{"form":222200,"name":"נועם וולדמן","phone":"0525000159","device":"מחשב ישן לחדש","issue":"העברת מידע ממחשב ישן למחשב חדש HP","fixed":null,"internal":null,"charge":0,"parts":null,"cost":0,"imei":null,"status":"נמסר ללקוח","received":"08/03/2026","delivered":"08/03/2026 15:09","waitDays":43,"labHours":4,"receivedBy":9924,"custType":"פרטי","insurance":0,"branch":2},{"form":222201,"name":"שי בן דוד","phone":"0586288862","device":"מחשב HP","issue":"התקנת ווינדוס 11","fixed":"בוצע התקנה של ווינדוס 11","internal":null,"charge":0,"parts":null,"cost":0,"imei":null,"status":"תוקן","received":"08/03/2026","delivered":null,"waitDays":0,"labHours":null,"receivedBy":9924,"custType":"פרטי","insurance":0,"branch":2},{"form":222202,"name":"נועם ארנון","phone":"0524295566","device":"סמסונג ישן","issue":"להוציא מידע מכל מכשיר. עלות בדיקה 120. אישור עבודה 300 שקל","fixed":null,"internal":null,"charge":0,"parts":null,"cost":0,"imei":null,"status":"ממתין","received":"08/03/2026","delivered":null,"waitDays":43,"labHours":null,"receivedBy":8898,"custType":"פרטי","insurance":0,"branch":2},{"form":222203,"name":"נועם ארנון","phone":"0524295566","device":"LG ישן","issue":"להוציא מידע מכל מכשיר. עלות בדיקה 120. אישור עבודה 300 שקל","fixed":null,"internal":null,"charge":0,"parts":null,"cost":0,"imei":null,"status":"ממתין","received":"08/03/2026","delivered":null,"waitDays":43,"labHours":null,"receivedBy":8898,"custType":"פרטי","insurance":0,"branch":2},{"form":222204,"name":"מתיישבי תלם","phone":"0503619674","device":"HP מותג","issue":"מאוורר מ רעיש","fixed":null,"internal":null,"charge":0,"parts":null,"cost":0,"imei":null,"status":"ממתין לתשובה מלקוח","received":"08/03/2026","delivered":null,"waitDays":43,"labHours":null,"receivedBy":8898,"custType":"פרטי","insurance":0,"branch":2},{"form":222205,"name":"נעה דניאל","phone":"0543330053","device":"מחשב לנובו","issue":"החלפת מסך\n1988noad קוד","fixed":null,"internal":null,"charge":0,"parts":null,"cost":0,"imei":null,"status":"נמסר ללקוח","received":"08/03/2026","delivered":"25/03/2026 12:01","waitDays":43,"labHours":407,"receivedBy":9924,"custType":"פרטי","insurance":0,"branch":2},{"form":222206,"name":"שמחה לזרוס","phone":"0546988670","device":"פוקו X4 GT","issue":"החלפת מסך בין מכשירים\n5779","fixed":null,"internal":null,"charge":150,"parts":null,"cost":150,"imei":null,"status":"נמסר ללקוח","received":"08/03/2026","delivered":"08/03/2026 16:35","waitDays":0,"labHours":2,"receivedBy":9906,"custType":"פרטי","insurance":0,"branch":2},{"form":222207,"name":"גלית בוטביה","phone":"0546319345","device":"A16","issue":"פריצה","fixed":"וצע פריצה","internal":null,"charge":400,"parts":null,"cost":150,"imei":null,"status":"נמסר ללקוח","received":"08/03/2026","delivered":"11/03/2026 16:40","waitDays":0,"labHours":73,"receivedBy":9906,"custType":"פרטי","insurance":0,"branch":2},{"form":222208,"name":"שרה זוננשיין","phone":"0505749701","device":"גלקסי","issue":"ניקוי וירוסים\n246135 קוד","fixed":"ניקוי וירוסים","internal":null,"charge":150,"parts":null,"cost":0,"imei":null,"status":"נמסר ללקוח","received":"09/03/2026","delivered":"09/03/2026 12:59","waitDays":0,"labHours":2,"receivedBy":9924,"custType":"פרטי","insurance":0,"branch":2},{"form":222209,"name":"מרגלית שנקר","phone":"0585806591","device":"שיומי 8A","issue":"נפל למים. לא שומים למעלה","fixed":"ניקוי קורוזיה","internal":null,"charge":180,"parts":null,"cost":0,"imei":null,"status":"נמסר ללקוח","received":"09/03/2026","delivered":"10/03/2026 11:14","waitDays":0,"labHours":25,"receivedBy":8898,"custType":"פרטי","insurance":0,"branch":2},{"form":222210,"name":"הראל מלסה","phone":"0556876559","device":"איפון 17","issue":"שכח את הקוד. פריצה.","fixed":"בוצע פתיחה מלאה לאייפון","internal":null,"charge":1700,"parts":null,"cost":1000,"imei":null,"status":"תוקן","received":"09/03/2026","delivered":null,"waitDays":41,"labHours":null,"receivedBy":8898,"custType":"פרטי","insurance":0,"branch":2},{"form":222211,"name":"מרים יפין","phone":"0586590788","device":"A16","issue":"אין תצוגה","fixed":"קצר","internal":null,"charge":150,"parts":null,"cost":0,"imei":null,"status":"נמסר ללקוח","received":"09/03/2026","delivered":"09/03/2026 13:27","waitDays":0,"labHours":1,"receivedBy":8898,"custType":"פרטי","insurance":0,"branch":2},{"form":222212,"name":"גלית ריצי","phone":"0545584582","device":"מחשב HP","issue":"החלפת מסך מחשב \nחדש 680\nאם יש יד2 400","fixed":null,"internal":null,"charge":680,"parts":null,"cost":300,"imei":null,"status":"נמסר ללקוח","received":"09/03/2026","delivered":"09/03/2026 13:55","waitDays":0,"labHours":0,"receivedBy":9924,"custType":"פרטי","insurance":0,"branch":2},{"form":222213,"name":"יהודית עמוסי","phone":"0526109060","device":"סמסונג","issue":"ניקוי וירוסים","fixed":"ניקוי","internal":null,"charge":150,"parts":null,"cost":0,"imei":null,"status":"נמסר ללקוח","received":"09/03/2026","delivered":"09/03/2026 15:54","waitDays":0,"labHours":2,"receivedBy":9924,"custType":"פרטי","insurance":0,"branch":2},{"form":222214,"name":"תדהר בביאן","phone":"0523302180","device":"A36","issue":"לקוח יבוא עם המחשב שלו כדי לפתוח את הוואצאפ וואב","fixed":null,"internal":null,"charge":0,"parts":null,"cost":0,"imei":null,"status":"מושבת","received":"09/03/2026","delivered":null,"waitDays":42,"labHours":null,"receivedBy":8898,"custType":"פרטי","insurance":0,"branch":2},{"form":222215,"name":"שירה בביאן","phone":"0526071569","device":"רדמי 12","issue":"מסך","fixed":null,"internal":null,"charge":0,"parts":null,"cost":0,"imei":null,"status":"נמסר ללקוח","received":"09/03/2026","delivered":"11/03/2026 15:06","waitDays":42,"labHours":45,"receivedBy":8898,"custType":"פרטי","insurance":0,"branch":2},{"form":222216,"name":"שמעון בן עמרם","phone":"0543331358","device":"מחשב HP","issue":"מאוורר מרעיש. אישור עבודה 250₪ אם יותר להתקשר לעדכן.","fixed":"ניקוי אבק ולכלוכים","internal":null,"charge":250,"parts":null,"cost":0,"imei":null,"status":"נמסר ללקוח","received":"10/03/2026","delivered":"12/03/2026 12:11","waitDays":2,"labHours":49,"receivedBy":9924,"custType":"פרטי","insurance":0,"branch":2},{"form":222217,"name":"רות אריאל","phone":"0528109758","device":"F22 PRO","issue":"מסך לא עובד. בדיקה אם ניתן לטפל במכשיר ללא החלפת מסך.\nקוד תבנית 1236","fixed":"קצר","internal":null,"charge":180,"parts":null,"cost":0,"imei":null,"status":"נמסר ללקוח","received":"10/03/2026","delivered":"15/03/2026 12:52","waitDays":1,"labHours":120,"receivedBy":9924,"custType":"פרטי","insurance":0,"branch":2},{"form":222218,"name":"הראל מלסה","phone":"0556876559","device":"A04","issue":"טלפון לא נדלק ולא נטען","fixed":null,"internal":null,"charge":250,"parts":250,"cost":60.5,"imei":null,"status":"נמסר ללקוח","received":"10/03/2026","delivered":"11/03/2026 17:29","waitDays":1,"labHours":28,"receivedBy":9924,"custType":"פרטי","insurance":0,"branch":2},{"form":222219,"name":"תרצה סינוואני","phone":"0587040960","device":"A33","issue":"לנסות להרכיב מסך זמני להעביר מידע ולהגיד ללקוח להגיע\n1235789","fixed":null,"internal":null,"charge":0,"parts":null,"cost":0,"imei":null,"status":"נמסר ללקוח","received":"10/03/2026","delivered":"18/03/2026 17:03","waitDays":41,"labHours":194,"receivedBy":9906,"custType":"פרטי","insurance":0,"branch":2},{"form":222220,"name":"בת ציון","phone":"0504945636","device":"S22+","issue":"טלפון לא מזהה מצלמה ורמקול עליון לא עובד\nקוד 8523\nמספר לעדכן 0506960903 נתן גולדשמיט","fixed":null,"internal":null,"charge":0,"parts":null,"cost":0,"imei":null,"status":"מושבת","received":"11/03/2026","delivered":null,"waitDays":40,"labHours":null,"receivedBy":9924,"custType":"פרטי","insurance":0,"branch":2},{"form":222221,"name":"ריבה אילני","phone":"0527902822","device":"מחשב DELL","issue":"מחשב לא נטען\nקוד 1915","fixed":"הוחלף שקע טעינה \nמחשב נטען ועובד תקין","internal":null,"charge":0,"parts":450,"cost":177,"imei":null,"status":"נמסר ללקוח","received":"11/03/2026","delivered":"19/03/2026 11:00","waitDays":4,"labHours":193,"receivedBy":9924,"custType":"פרטי","insurance":0,"branch":2},{"form":222222,"name":"אביחי פינטו","phone":"0542065005","device":"פלייסטיישן 5","issue":"תיקון פלייסטיישן לא קולט מסך","fixed":"בוצע החךפה של שקע HDMI","internal":null,"charge":1000,"parts":null,"cost":250,"imei":null,"status":"תוקן","received":"12/03/2026","delivered":"29/03/2026 14:42","waitDays":14,"labHours":411,"receivedBy":9924,"custType":"פרטי","insurance":0,"branch":2},{"form":222223,"name":"מדרשת מעלה חבר","phone":"0526070196","device":"A13","issue":"להגדיר ווטסאפ נוסף למספר 0584012854\nyigal@mhever.org.il\nyy9963555","fixed":null,"internal":null,"charge":0,"parts":null,"cost":0,"imei":null,"status":"נמסר ללקוח","received":"12/03/2026","delivered":"15/03/2026 16:41","waitDays":39,"labHours":77,"receivedBy":9924,"custType":"פרטי","insurance":0,"branch":2},{"form":222224,"name":"חנה זרהון","phone":"0528995204","device":"אייפון 15","issue":"מסך שבור","fixed":null,"internal":null,"charge":0,"parts":450,"cost":149.9,"imei":null,"status":"נמסר ללקוח","received":"12/03/2026","delivered":"13/03/2026 10:24","waitDays":0,"labHours":22,"receivedBy":9906,"custType":"פרטי","insurance":0,"branch":2},{"form":222225,"name":"יגאל ינאי","phone":"0584012854","device":"S21FE","issue":"לנסות להדליק בשביל להעביר מידע 180 העברה 150","fixed":null,"internal":null,"charge":0,"parts":null,"cost":0,"imei":null,"status":"נמסר ללקוח","received":"12/03/2026","delivered":"15/03/2026 16:41","waitDays":39,"labHours":76,"receivedBy":9906,"custType":"פרטי","insurance":0,"branch":2},{"form":222226,"name":"המרכז לספר","phone":"0525563774","device":"מחשב נייד","issue":"קריסות (המחשב סוגר תוכנות שמפסיקות להגיב) חסרות תוכנות (וורד אקסל וכו)","fixed":"לא ניתן לתקן","internal":null,"charge":0,"parts":null,"cost":0,"imei":null,"status":"מושבת","received":"12/03/2026","delivered":null,"waitDays":39,"labHours":null,"receivedBy":9924,"custType":"פרטי","insurance":0,"branch":2},{"form":222227,"name":"כנרת ארנון","phone":"0542087743","device":"סמסונג A52","issue":"הגב נפל. כשמחברים את הגב המסך נהיה שחור לפעמים.\nאנשים מתלוננים ששומעים מקוטע בשיחות טלפון. \nאישור עבודה עד 180","fixed":null,"internal":null,"charge":0,"parts":null,"cost":0,"imei":null,"status":"תוקן","received":"12/03/2026","delivered":null,"waitDays":0,"labHours":null,"receivedBy":9924,"custType":"פרטי","insurance":0,"branch":2},{"form":222228,"name":"שירה תוהמי","phone":"0527078417","device":"מחשב פרו בוק","issue":"להכין מחשב","fixed":null,"internal":null,"charge":0,"parts":null,"cost":0,"imei":null,"status":"נמסר ללקוח","received":"12/03/2026","delivered":"15/03/2026 16:41","waitDays":39,"labHours":74,"receivedBy":9906,"custType":"פרטי","insurance":0,"branch":2},{"form":222229,"name":"ליאור גולדברג","phone":"0526602800","device":null,"issue":"מסך 8955 שולם","fixed":"בוצע החלפת מסך","internal":null,"charge":0,"parts":null,"cost":0,"imei":null,"status":"תוקן","received":"12/03/2026","delivered":null,"waitDays":0,"labHours":null,"receivedBy":8898,"custType":"פרטי","insurance":0,"branch":2},{"form":222230,"name":"רחלי פראג'ן","phone":"0526238101","device":"מחשב לנובו גיימיניג","issue":"מסך שבור \nתעדכן אם לתקן","fixed":"בוצע החלפת מסך","internal":null,"charge":950,"parts":null,"cost":360,"imei":null,"status":"נמסר ללקוח","received":"12/03/2026","delivered":"18/03/2026 13:05","waitDays":5,"labHours":141,"receivedBy":9906,"custType":"פרטי","insurance":0,"branch":2},{"form":222231,"name":"חיה נדב","phone":"0542091770","device":"מדפסת","issue":"הדיו התייבש","fixed":null,"internal":null,"charge":0,"parts":347,"cost":99.1,"imei":null,"status":"נמסר ללקוח","received":"12/03/2026","delivered":"31/03/2026 16:59","waitDays":19,"labHours":456,"receivedBy":9906,"custType":"פרטי","insurance":0,"branch":2},{"form":222232,"name":"נאווה אורנשטיין","phone":"0503010902","device":"רדמי","issue":"טלפון נרטב. לראות אם אפשר לנקות \nקוד 2195782","fixed":"ניקוי","internal":29960133,"charge":180,"parts":null,"cost":0,"imei":null,"status":"נמסר ללקוח","received":"13/03/2026","delivered":"15/03/2026 17:03","waitDays":2,"labHours":54,"receivedBy":9924,"custType":"פרטי","insurance":0,"branch":2},{"form":222233,"name":"יחזקאל רבשצ","phone":"0544229267","device":"כזיכרון חיצוני","issue":"שחזור מידע זיכרון חיצוני לא קולט כבל \nלעדכן לקוח במחיר","fixed":"כונן נבדק\nהחיבור USB נשבר \nבוצע החלפת קופסא","internal":null,"charge":0,"parts":150,"cost":38,"imei":null,"status":"נמסר ללקוח","received":"13/03/2026","delivered":"19/03/2026 15:35","waitDays":6,"labHours":147,"receivedBy":9924,"custType":"פרטי","insurance":0,"branch":2},{"form":222234,"name":"הראל מלסה","phone":"0556876559","device":"A04","issue":"היה בתיקון שקע טעינה ולא עובד","fixed":"לא ניתן לתקן \nלקוח מקבל 100 שקל זיכוי לחנות","internal":null,"charge":0,"parts":null,"cost":0,"imei":null,"status":"מושבת","received":"15/03/2026","delivered":null,"waitDays":36,"labHours":null,"receivedBy":9906,"custType":"פרטי","insurance":0,"branch":2},{"form":222235,"name":"סעדיה מנחם","phone":"0525666984","device":"העברה ל25+","issue":"העברת מידע\n2589","fixed":"בוצע העברת מידע","internal":null,"charge":0,"parts":null,"cost":0,"imei":null,"status":"תוקן","received":"15/03/2026","delivered":null,"waitDays":0,"labHours":null,"receivedBy":9906,"custType":"פרטי","insurance":0,"branch":2},{"form":222236,"name":"מרדכי אושפיז","phone":"0515596286","device":"אייפון 15  פרו מקס","issue":"מבך שבור\n2145","fixed":"החלפת מסך","internal":null,"charge":550,"parts":null,"cost":0,"imei":null,"status":"נמסר ללקוח","received":"15/03/2026","delivered":"15/03/2026 15:56","waitDays":0,"labHours":1,"receivedBy":9906,"custType":"פרטי","insurance":0,"branch":2},{"form":222237,"name":"גלית בוטביה","phone":"0546319345","device":"A36","issue":"נפל למים.","fixed":null,"internal":null,"charge":250,"parts":null,"cost":0,"imei":null,"status":"נמסר ללקוח","received":"15/03/2026","delivered":"15/03/2026 18:07","waitDays":0,"labHours":1,"receivedBy":8898,"custType":"פרטי","insurance":0,"branch":2},{"form":222238,"name":"רות מלמד","phone":"0559112802","device":"24 אולטרה","issue":"מצלמה לא עובדת. החלפת מצלמה 680. תיקון בין 180 ל250","fixed":"מצלמות היו מנותקות","internal":null,"charge":250,"parts":null,"cost":0,"imei":null,"status":"נמסר ללקוח","received":"15/03/2026","delivered":"19/03/2026 12:40","waitDays":3,"labHours":91,"receivedBy":8898,"custType":"פרטי","insurance":0,"branch":2},{"form":222239,"name":"אריאל קרמר","phone":"0532799511","device":"A72","issue":"456987\nנפל לשירותים \nבדיקה 180 בכל מקרה\nולעדכן אם צריך יותר מזה","fixed":"תקוע לוגו מושבת","internal":null,"charge":180,"parts":null,"cost":0,"imei":null,"status":"נמסר ללקוח","received":"15/03/2026","delivered":"26/03/2026 13:07","waitDays":36,"labHours":260,"receivedBy":9906,"custType":"פרטי","insurance":0,"branch":2},{"form":222240,"name":"חיים בלומנטל","phone":"0556834215","device":"S21 FE","issue":"מכשיר לא נדלק. בדיקה","fixed":null,"internal":null,"charge":0,"parts":null,"cost":0,"imei":null,"status":"נמסר ללקוח","received":"16/03/2026","delivered":"22/03/2026 16:36","waitDays":35,"labHours":150,"receivedBy":8898,"custType":"פרטי","insurance":0,"branch":2},{"form":222241,"name":"וייס מיכל","phone":"0528367787","device":"נוקיה 225","issue":"מסך שבור. לתת מחיר ללקוח","fixed":null,"internal":null,"charge":0,"parts":null,"cost":0,"imei":null,"status":"מושבת","received":"16/03/2026","delivered":null,"waitDays":35,"labHours":null,"receivedBy":8898,"custType":"פרטי","insurance":0,"branch":2},{"form":222242,"name":"בת אל","phone":"0542025972","device":"S23 אולטרה","issue":"סוללה","fixed":null,"internal":null,"charge":380,"parts":null,"cost":130,"imei":null,"status":"נמסר ללקוח","received":"16/03/2026","delivered":"16/03/2026 14:12","waitDays":0,"labHours":3,"receivedBy":8898,"custType":"פרטי","insurance":0,"branch":2},{"form":222243,"name":"הלל גרוס","phone":"0586422800","device":"A06","issue":"כשמגיע מסך לעדכן לקוח שיבוא להעביר מידע","fixed":null,"internal":"הפלאפון נמצא בקופסא של החלקים של A06","charge":0,"parts":null,"cost":0,"imei":null,"status":"ממתין לתשובה מלקוח","received":"16/03/2026","delivered":null,"waitDays":35,"labHours":null,"receivedBy":8898,"custType":"פרטי","insurance":0,"branch":2},{"form":222244,"name":"אורטל חזן","phone":"0526767288","device":"HP","issue":"מחשב לא נדלק לבדוק אם יש אחריות. ישוב אדורה קנה את זה.","fixed":null,"internal":null,"charge":0,"parts":null,"cost":0,"imei":null,"status":"ממתין","received":"16/03/2026","delivered":null,"waitDays":35,"labHours":null,"receivedBy":8898,"custType":"פרטי","insurance":0,"branch":2},{"form":222245,"name":"ישראל ליאור","phone":"0536275202","device":"נוט 11","issue":"תקוע על רבוט. עלות בדיקה 80","fixed":null,"internal":null,"charge":0,"parts":null,"cost":0,"imei":null,"status":"נמסר ללקוח","received":"16/03/2026","delivered":"22/03/2026 16:37","waitDays":35,"labHours":148,"receivedBy":8898,"custType":"פרטי","insurance":0,"branch":2},{"form":222246,"name":"נעם הרשברג","phone":"0548060881","device":"S6 לייט","issue":"מסך התנתק. לראות איך אפשר להעביר מידע לחדש. לתת הצעה אם צריך למסך חדש. אולי זה רק פלט","fixed":"פלט תקול.","internal":null,"charge":150,"parts":null,"cost":0,"imei":null,"status":"נמסר ללקוח","received":"16/03/2026","delivered":"20/03/2026 09:57","waitDays":4,"labHours":90,"receivedBy":8898,"custType":"פרטי","insurance":0,"branch":2},{"form":222247,"name":"סיוון בן-שיטרית","phone":"0543122529","device":"טאבלט","issue":"תת מחיר לפריצה","fixed":"תעדכן אם לפרוץ","internal":null,"charge":0,"parts":null,"cost":0,"imei":null,"status":"מושבת","received":"16/03/2026","delivered":null,"waitDays":35,"labHours":null,"receivedBy":8898,"custType":"פרטי","insurance":0,"branch":2},{"form":222248,"name":"אשור דבורה","phone":"0546761046","device":"A17","issue":"להעביר מידע. שולם","fixed":null,"internal":null,"charge":0,"parts":null,"cost":0,"imei":null,"status":"נמסר ללקוח","received":"16/03/2026","delivered":"18/03/2026 17:03","waitDays":35,"labHours":48,"receivedBy":8898,"custType":"פרטי","insurance":0,"branch":2},{"form":222249,"name":"נחשון יהודה","phone":"0583622306","device":"S7","issue":"לא נטען","fixed":null,"internal":null,"charge":0,"parts":null,"cost":0,"imei":null,"status":"נמסר ללקוח","received":"17/03/2026","delivered":"22/03/2026 16:36","waitDays":34,"labHours":126,"receivedBy":9906,"custType":"פרטי","insurance":0,"branch":2},{"form":222250,"name":"אהרון מטלון","phone":"0523003584","device":"מחשב דל","issue":"לבדוק אם בר תיקון \nבעיה בכפתור הדלקה ואולי גם טעינה","fixed":"בוצע פתיחה למחשב \nבוצע תיקון לכפתור הדלקה \nהמחשב נבדק ונטען \nמקלדת לא עובדת\nבפתיחה של המחשב הכל היה דביק כנראה נשפך בעבר קפה או שוקו","internal":null,"charge":250,"parts":null,"cost":0,"imei":null,"status":"תוקן","received":"17/03/2026","delivered":null,"waitDays":12,"labHours":null,"receivedBy":9906,"custType":"פרטי","insurance":0,"branch":2},{"form":222251,"name":"סוניה","phone":"0542608775","device":"A13","issue":"change245\nמסך שבור","fixed":"הוחלף מסך","internal":null,"charge":460,"parts":null,"cost":0,"imei":null,"status":"נמסר ללקוח","received":"17/03/2026","delivered":"19/03/2026 13:45","waitDays":1,"labHours":49,"receivedBy":9906,"custType":"פרטי","insurance":0,"branch":2},{"form":222252,"name":"מרגו כץ","phone":"0544402345","device":"A33","issue":"מראה סימן של טיפה בטעינה \n9369","fixed":"בוצע החלפת שקע טעינה","internal":null,"charge":0,"parts":250,"cost":100.9,"imei":null,"status":"נמסר ללקוח","received":"17/03/2026","delivered":"19/03/2026 18:03","waitDays":0,"labHours":54,"receivedBy":9906,"custType":"פרטי","insurance":0,"branch":2},{"form":222253,"name":"מלכי בלומנטל","phone":"0584090808","device":"A25","issue":"מסך שבור","fixed":"הוחלף מסך","internal":null,"charge":520,"parts":null,"cost":0,"imei":null,"status":"נמסר ללקוח","received":"18/03/2026","delivered":"18/03/2026 16:30","waitDays":0,"labHours":5,"receivedBy":9906,"custType":"פרטי","insurance":0,"branch":2},{"form":222254,"name":"אבי ביטון","phone":"0545883508","device":"פוקו M6פרו","issue":"852456\nמסך שוב","fixed":"בוצע החלפת מסך","internal":null,"charge":500,"parts":null,"cost":280,"imei":null,"status":"נמסר ללקוח","received":"18/03/2026","delivered":"22/03/2026 12:22","waitDays":1,"labHours":95,"receivedBy":9906,"custType":"פרטי","insurance":0,"branch":2},{"form":222255,"name":"מיכאל ברנשטיין","phone":"0527906213","device":"F21","issue":"מספר לעדכונים 0505451313 אהוביה )אשתו(\nקוד 12369","fixed":"בצוע ניוקי וניסיון לגירסא ללא הצלחה","internal":null,"charge":180,"parts":null,"cost":0,"imei":null,"status":"נמסר ללקוח","received":"18/03/2026","delivered":"19/03/2026 12:43","waitDays":1,"labHours":21,"receivedBy":9924,"custType":"פרטי","insurance":0,"branch":2},{"form":222256,"name":"אביחי ברזילי","phone":"0502472395","device":"מחשבים","issue":"העברת מידע מ3 מחשבים לכונן חיצוני","fixed":"בוצע העברה מ3 מחשבים לכונן חיצוני","internal":null,"charge":0,"parts":1050,"cost":240.6,"imei":null,"status":"תוקן","received":"18/03/2026","delivered":null,"waitDays":13,"labHours":null,"receivedBy":9906,"custType":"פרטי","insurance":0,"branch":2},{"form":222257,"name":"חיים זלינגר","phone":"0505884919","device":"A53","issue":"זמין 0508571578\nלנסות להעביר מידע\nHayimze@gmail.com","fixed":null,"internal":null,"charge":0,"parts":null,"cost":0,"imei":null,"status":"נמסר ללקוח","received":"19/03/2026","delivered":"22/03/2026 16:36","waitDays":32,"labHours":75,"receivedBy":9906,"custType":"פרטי","insurance":0,"branch":2},{"form":222258,"name":"להבה פרידמן","phone":"0504831234","device":"העברת ווצאפ לאייפון","issue":"העברת ווצאפ לאייפון \n1651","fixed":null,"internal":null,"charge":0,"parts":null,"cost":0,"imei":null,"status":"מושבת","received":"19/03/2026","delivered":null,"waitDays":32,"labHours":null,"receivedBy":9906,"custType":"פרטי","insurance":0,"branch":2},{"form":222259,"name":"שמוליק פיין","phone":"0545951305","device":"A73","issue":"בדיקה \nלא נדלק\n1936","fixed":null,"internal":null,"charge":180,"parts":null,"cost":0,"imei":null,"status":"נמסר ללקוח","received":"19/03/2026","delivered":"25/03/2026 10:38","waitDays":0,"labHours":140,"receivedBy":9906,"custType":"פרטי","insurance":0,"branch":2},{"form":222260,"name":"יצקו בגבהים","phone":"0522038614","device":"פוקו X6","issue":"מסך שבור","fixed":null,"internal":null,"charge":0,"parts":null,"cost":0,"imei":null,"status":"נמסר ללקוח","received":"20/03/2026","delivered":"25/03/2026 13:59","waitDays":31,"labHours":122,"receivedBy":9918,"custType":"פרטי","insurance":0,"branch":2},{"form":222261,"name":"מוטולה","phone":"0505063363","device":"X3","issue":"סוללה נפוכה.","fixed":null,"internal":null,"charge":250,"parts":null,"cost":65,"imei":null,"status":"נמסר ללקוח","received":"22/03/2026","delivered":"23/03/2026 13:05","waitDays":0,"labHours":24,"receivedBy":8898,"custType":"פרטי","insurance":0,"branch":2},{"form":222262,"name":"גולדה ויינברג","phone":"0547202568","device":"אוואן פלוס","issue":"ניקוי וירוסים \nקוד 1258","fixed":null,"internal":null,"charge":150,"parts":null,"cost":0,"imei":null,"status":"נמסר ללקוח","received":"22/03/2026","delivered":"22/03/2026 16:52","waitDays":0,"labHours":2,"receivedBy":9924,"custType":"פרטי","insurance":0,"branch":2},{"form":222263,"name":"לאה הלר","phone":"0527710167","device":"A07","issue":"העברת מידע לA07 חדש","fixed":null,"internal":null,"charge":0,"parts":null,"cost":0,"imei":null,"status":"נמסר ללקוח","received":"22/03/2026","delivered":"25/03/2026 12:04","waitDays":29,"labHours":70,"receivedBy":9924,"custType":"פרטי","insurance":0,"branch":2},{"form":222264,"name":"יעקוב ברמסון","phone":"0584445480","device":"אייפון ושיאומי","issue":"העברת נתונים שיאומי לאייפון \nקוד אייפון 0000 קוד שיאומי 12369\nאם לא עובד רגיל להעביר רק ווטסאפ בתוכנה","fixed":"בטצע העברת מידע","internal":"חשבון אפל\nhgeccrnxui@gmail.com\nYakov012","charge":0,"parts":null,"cost":0,"imei":null,"status":"נמסר ללקוח","received":"22/03/2026","delivered":"25/03/2026 12:05","waitDays":29,"labHours":70,"receivedBy":9924,"custType":"פרטי","insurance":0,"branch":2},{"form":222265,"name":"גולדה ויינברג","phone":"0547202568","device":"A12","issue":"מסך","fixed":"הוחלף מסך","internal":null,"charge":430,"parts":null,"cost":0,"imei":null,"status":"נמסר ללקוח","received":"22/03/2026","delivered":"31/03/2026 14:34","waitDays":4,"labHours":214,"receivedBy":8898,"custType":"פרטי","insurance":0,"branch":2},{"form":222266,"name":"שמואל גלס","phone":"0528903566","device":"מחשב אסוס","issue":"לא שומעים טוב ברמקול","fixed":"רמקולים שרופים יגיע לאסוף ונעדכן כשיגיעו הרמקולים מחול","internal":null,"charge":250,"parts":null,"cost":0,"imei":null,"status":"תוקן","received":"23/03/2026","delivered":null,"waitDays":3,"labHours":null,"receivedBy":9924,"custType":"פרטי","insurance":0,"branch":2},{"form":222267,"name":"שירה טל","phone":"0523090220","device":"גלקסי","issue":"לא קולט ווי פי","fixed":null,"internal":null,"charge":0,"parts":null,"cost":0,"imei":null,"status":"נמסר ללקוח","received":"23/03/2026","delivered":"25/03/2026 16:27","waitDays":28,"labHours":53,"receivedBy":9924,"custType":"פרטי","insurance":0,"branch":2},{"form":222268,"name":"נחלת אברהם ושמואל","phone":"0523800697","device":"A31","issue":"אין לטלפון רטט","fixed":"הוחלף רכיב רטט","internal":null,"charge":180,"parts":null,"cost":0,"imei":null,"status":"נמסר ללקוח","received":"23/03/2026","delivered":"23/03/2026 15:37","waitDays":0,"labHours":3,"receivedBy":9924,"custType":"פרטי","insurance":0,"branch":2},{"form":222269,"name":"נעימה ליאור","phone":"0522903059","device":"מדפסת HP","issue":"לבדוק למה לא מושכת דפים","fixed":"בוצע בדיקה \nהגלגלת שמושכת דפים שבורה","internal":null,"charge":0,"parts":null,"cost":0,"imei":null,"status":"נמסר ללקוח","received":"23/03/2026","delivered":"29/03/2026 17:15","waitDays":28,"labHours":144,"receivedBy":9906,"custType":"פרטי","insurance":0,"branch":2},{"form":222270,"name":"גרשון רוטשילד","phone":"0542197710","device":"מלנובו לHP","issue":"העברת מידע למחשב חדש","fixed":null,"internal":null,"charge":0,"parts":null,"cost":0,"imei":null,"status":"נמסר ללקוח","received":"24/03/2026","delivered":"25/03/2026 12:04","waitDays":27,"labHours":25,"receivedBy":9906,"custType":"פרטי","insurance":0,"branch":2},{"form":222271,"name":"אירית רייכמן","phone":"0508743238","device":"A12","issue":"קוד 1478963 \nהעברת נתונים מA12 לA17","fixed":null,"internal":null,"charge":0,"parts":null,"cost":0,"imei":null,"status":"נמסר ללקוח","received":"24/03/2026","delivered":"25/03/2026 12:05","waitDays":27,"labHours":25,"receivedBy":9924,"custType":"פרטי","insurance":0,"branch":2},{"form":222272,"name":"זיו מיכאלי","phone":"0508420686","device":"POCO x5 pro","issue":"קוד 4578\nהעברת נתונים פוקו ישן לפוקו חדש )X7)","fixed":null,"internal":null,"charge":0,"parts":null,"cost":0,"imei":null,"status":"נמסר ללקוח","received":"24/03/2026","delivered":"25/03/2026 16:27","waitDays":27,"labHours":29,"receivedBy":9924,"custType":"פרטי","insurance":0,"branch":2},{"form":222273,"name":"שירה טל","phone":"0523090220","device":"העברה לA26","issue":"העברת מידע","fixed":"בטצע העברתצ מידע","internal":null,"charge":0,"parts":null,"cost":0,"imei":null,"status":"תוקן","received":"24/03/2026","delivered":null,"waitDays":1,"labHours":null,"receivedBy":9906,"custType":"פרטי","insurance":0,"branch":2},{"form":222274,"name":"בני רחל","phone":"0584273828","device":"מאק","issue":"החליף סוללה לבד ותלש קונקטור מהלוח\nEstr1642","fixed":"בוצע הלחמות מעקפים לחיבור סוללה","internal":null,"charge":700,"parts":null,"cost":0,"imei":null,"status":"נמסר ללקוח","received":"24/03/2026","delivered":"25/03/2026 16:48","waitDays":1,"labHours":25,"receivedBy":9906,"custType":"פרטי","insurance":0,"branch":2},{"form":222275,"name":"בני רחל","phone":"0584273828","device":"דל","issue":"מחשב קיבל מכה \nמראה שנדלק ומרצד","fixed":"בוצע פתיחה למחשב \nבוצע ניתוק פלט מסך \nבוצע החלפת סלוט לראם","internal":null,"charge":250,"parts":null,"cost":0,"imei":null,"status":"נמסר ללקוח","received":"24/03/2026","delivered":"19/04/2026 13:57","waitDays":22,"labHours":622,"receivedBy":9906,"custType":"פרטי","insurance":0,"branch":2},{"form":222276,"name":"שוקי גלבוע","phone":"0524798232","device":"העברה לA56","issue":"העברת מידע מF54  לA56\n1235789","fixed":null,"internal":null,"charge":0,"parts":null,"cost":0,"imei":null,"status":"נמסר ללקוח","received":"24/03/2026","delivered":"25/03/2026 16:30","waitDays":27,"labHours":25,"receivedBy":9906,"custType":"פרטי","insurance":0,"branch":2},{"form":222277,"name":"נתנאל אפשטיין","phone":"0527710642","device":"מחשב ומדפסת","issue":"מחשב לא מזהה מדפסת. לבדוק.","fixed":null,"internal":null,"charge":0,"parts":null,"cost":0,"imei":null,"status":"מושבת","received":"25/03/2026","delivered":null,"waitDays":26,"labHours":null,"receivedBy":9924,"custType":"פרטי","insurance":0,"branch":2},{"form":222278,"name":"אביחי פז-גרינוולד","phone":"0556662095","device":"נייח","issue":"לא רוצים להשקיע הרבה כסף. לנסות להשמיש את המחשב","fixed":"בוצע בדיקה למחשב \nנמצא כפתור הדלקה תקול \nבוצע החלפה לכפתור הדלקה חיצוני \nמחשב נבדלק ועובד תקין","internal":null,"charge":250,"parts":null,"cost":0,"imei":null,"status":"נמסר ללקוח","received":"25/03/2026","delivered":"29/03/2026 17:39","waitDays":4,"labHours":102,"receivedBy":8898,"custType":"פרטי","insurance":0,"branch":2},{"form":222279,"name":"פרייב לזר","phone":"0528301109","device":null,"issue":"העברת נתונים מטלפון ישן לnote 14 חדש\nקוד 14636799","fixed":null,"internal":null,"charge":0,"parts":null,"cost":0,"imei":null,"status":"נמסר ללקוח","received":"25/03/2026","delivered":"25/03/2026 16:30","waitDays":26,"labHours":5,"receivedBy":9924,"custType":"פרטי","insurance":0,"branch":2},{"form":222280,"name":"מרדכי שטרן","phone":"0528903552","device":"שיאומיפוקו 7 פרו","issue":"ניקוי וירוסים","fixed":"נוקו וירוסים","internal":null,"charge":150,"parts":null,"cost":0,"imei":null,"status":"נמסר ללקוח","received":"25/03/2026","delivered":"25/03/2026 14:34","waitDays":0,"labHours":2,"receivedBy":9924,"custType":"פרטי","insurance":0,"branch":2},{"form":222281,"name":"יוסי כהן","phone":"0505785857","device":"רדמי נוט 13 פרו","issue":"קוד 36987\n055 9690475 לעדכן\nהעברת נתונים לA56","fixed":null,"internal":null,"charge":0,"parts":null,"cost":0,"imei":null,"status":"נמסר ללקוח","received":"25/03/2026","delivered":"25/03/2026 17:24","waitDays":26,"labHours":5,"receivedBy":9924,"custType":"פרטי","insurance":0,"branch":2},{"form":222282,"name":"טוויזר ביאטריס","phone":"0528753447","device":"מחשב HP","issue":"מסך לא עובד","fixed":"בו ע בדחקה למחשב \nבוצע עדכונים ועדכון ביוס למחשב \nבנוס היה שגיאה שם תקלת מאוורר \nבוצע פתיחה וניקוי אבק \nמחשב עובד תקין","internal":null,"charge":250,"parts":null,"cost":0,"imei":null,"status":"נמסר ללקוח","received":"25/03/2026","delivered":"30/03/2026 17:10","waitDays":1,"labHours":125,"receivedBy":9924,"custType":"פרטי","insurance":0,"branch":2},{"form":222283,"name":"יונתן בלומברג","phone":"0525343266","device":"14C","issue":"החלפת מסך \nקוד 1556","fixed":null,"internal":null,"charge":0,"parts":380,"cost":129.8,"imei":null,"status":"נמסר ללקוח","received":"25/03/2026","delivered":"25/03/2026 16:33","waitDays":0,"labHours":2,"receivedBy":9924,"custType":"פרטי","insurance":0,"branch":2},{"form":222284,"name":"יהודה סלע","phone":"0546872158","device":"אוזניות JBI BEAM","issue":"נקנה לפני חצי שנה.\nאוזנייה שמאלית לא עובדת.","fixed":null,"internal":"נשלח לאחריות","charge":0,"parts":null,"cost":0,"imei":null,"status":"מושבת","received":"25/03/2026","delivered":null,"waitDays":26,"labHours":null,"receivedBy":9924,"custType":"פרטי","insurance":0,"branch":2},{"form":222285,"name":"בצלאל צור","phone":"0523961509","device":"A25","issue":"החלפת מסך A25","fixed":"ניסיון תיקון קונקטור","internal":"מספר לעדכון 052-4317069","charge":180,"parts":null,"cost":0,"imei":null,"status":"נמסר ללקוח","received":"26/03/2026","delivered":"09/04/2026 13:48","waitDays":14,"labHours":339,"receivedBy":9924,"custType":"פרטי","insurance":0,"branch":2},{"form":222286,"name":"חנה לשם","phone":"0548188482","device":"מחשב נייד HP","issue":"קוד Leshem10\nאין קליטת וויפי","fixed":"בוצע בדיקה למחשב \nיש רימון במחשב \nניטרול של הרימון פתר את הבעיה","internal":null,"charge":80,"parts":null,"cost":0,"imei":null,"status":"נמסר ללקוח","received":"26/03/2026","delivered":"31/03/2026 17:03","waitDays":5,"labHours":127,"receivedBy":9924,"custType":"פרטי","insurance":0,"branch":2},{"form":222287,"name":"אלי סעדיה","phone":"0542686513","device":"מחשב נייח","issue":"להעביר מידע לכונן או דיסק אונקי","fixed":null,"internal":null,"charge":250,"parts":null,"cost":0,"imei":null,"status":"נמסר ללקוח","received":"26/03/2026","delivered":"20/04/2026 12:52","waitDays":24,"labHours":597,"receivedBy":9906,"custType":"פרטי","insurance":0,"branch":2},{"form":222288,"name":"שלום עמיר","phone":"0512962665","device":"15T","issue":"6037215 להעביר מידע","fixed":null,"internal":null,"charge":0,"parts":null,"cost":0,"imei":null,"status":"נמסר ללקוח","received":"27/03/2026","delivered":"29/03/2026 17:16","waitDays":24,"labHours":55,"receivedBy":8898,"custType":"פרטי","insurance":0,"branch":2},{"form":222289,"name":"עמיחי ביליה","phone":"0587484682","device":"X4 פרו","issue":"מסך 14789","fixed":"הוחלף מסך X4 פרו","internal":null,"charge":390,"parts":390,"cost":160,"imei":null,"status":"נמסר ללקוח","received":"27/03/2026","delivered":"30/03/2026 15:06","waitDays":2,"labHours":76,"receivedBy":8898,"custType":"פרטי","insurance":0,"branch":2},{"form":222290,"name":"שמעיה האוקיפ","phone":"0546332578","device":"S23 פלוס","issue":"לא נטען. בדקיה 180","fixed":null,"internal":null,"charge":450,"parts":null,"cost":50,"imei":null,"status":"נמסר ללקוח","received":"27/03/2026","delivered":"09/04/2026 15:55","waitDays":4,"labHours":316,"receivedBy":8898,"custType":"פרטי","insurance":0,"branch":2},{"form":222291,"name":"חרות אוחיון","phone":"0584741585","device":"אייפון 11","issue":"קוד 052453\nמסך נשבר והפסיק לעבוד.\nהחלפת מסך לאייפון 11","fixed":"הוחלף מסך","internal":null,"charge":450,"parts":450,"cost":131,"imei":null,"status":"נמסר ללקוח","received":"29/03/2026","delivered":"29/03/2026 17:47","waitDays":0,"labHours":5,"receivedBy":9924,"custType":"פרטי","insurance":0,"branch":2},{"form":222292,"name":"יוני אלמשעלי","phone":"0584002009","device":"העברה לS25","issue":"74269\nאימות דו שלבי 270988\nהעברת מידע","fixed":"בוצע העברת מידע","internal":null,"charge":150,"parts":null,"cost":0,"imei":null,"status":"נמסר ללקוח","received":"29/03/2026","delivered":"29/03/2026 17:44","waitDays":0,"labHours":3,"receivedBy":9906,"custType":"פרטי","insurance":0,"branch":2},{"form":222293,"name":"רות  זות","phone":"0547942891","device":"S25 אולטרה","issue":"מסך שבור\n1235789","fixed":"הוחלף מסך","internal":null,"charge":1450,"parts":1450,"cost":950,"imei":null,"status":"נמסר ללקוח","received":"29/03/2026","delivered":"31/03/2026 14:14","waitDays":2,"labHours":47,"receivedBy":9906,"custType":"פרטי","insurance":0,"branch":2},{"form":222294,"name":"מוריה ברנס","phone":"0524474389","device":"S20FE","issue":"הוחלפה סוללה. מושך חשמל ואחרי שניה קורס.","fixed":"בוצע החלפת סוללה \nאין טאץ","internal":null,"charge":350,"parts":null,"cost":60,"imei":null,"status":"נמסר ללקוח","received":"29/03/2026","delivered":"31/03/2026 16:30","waitDays":2,"labHours":47,"receivedBy":9924,"custType":"פרטי","insurance":0,"branch":2},{"form":222295,"name":"מוריה ברנס","phone":"0524474389","device":"A30","issue":"הוחלפה סוללה. אחוזים לא עולים.","fixed":"בוצע בדיקה מכשיר מושבת","internal":null,"charge":120,"parts":null,"cost":0,"imei":null,"status":"נמסר ללקוח","received":"29/03/2026","delivered":"31/03/2026 16:30","waitDays":22,"labHours":47,"receivedBy":9924,"custType":"פרטי","insurance":0,"branch":2},{"form":222296,"name":"לוי נחמני","phone":"0509366991","device":"אייפון 15 פרו","issue":"החלפת מסך אייפון 15 פרו \nמספר לעדכונים 0559124734","fixed":"הוחלף מסך","internal":null,"charge":500,"parts":500,"cost":190,"imei":null,"status":"נמסר ללקוח","received":"29/03/2026","delivered":"09/04/2026 15:11","waitDays":2,"labHours":262,"receivedBy":9924,"custType":"פרטי","insurance":0,"branch":2},{"form":222297,"name":"אוסנת עמרם","phone":"0559180050","device":"נוקיה 105","issue":"ניקוי קורוזיה","fixed":"בוצע ניקוי קורוזיה","internal":null,"charge":150,"parts":null,"cost":0,"imei":null,"status":"נמסר ללקוח","received":"30/03/2026","delivered":"30/03/2026 17:41","waitDays":0,"labHours":6,"receivedBy":9924,"custType":"פרטי","insurance":0,"branch":2},{"form":222298,"name":"גבריאל קיין","phone":"0526266696","device":"A17","issue":"החלפת מסך","fixed":"הוחלף מסך","internal":null,"charge":550,"parts":550,"cost":250,"imei":null,"status":"נמסר ללקוח","received":"30/03/2026","delivered":"31/03/2026 16:36","waitDays":1,"labHours":29,"receivedBy":9924,"custType":"פרטי","insurance":0,"branch":2},{"form":222299,"name":"אפרת חדד","phone":"0523114819","device":"מחשב לנובו גיימינג","issue":"עובד ממש לאט","fixed":null,"internal":null,"charge":0,"parts":null,"cost":0,"imei":null,"status":"נמסר ללקוח","received":"30/03/2026","delivered":"14/04/2026 13:27","waitDays":21,"labHours":357,"receivedBy":9906,"custType":"פרטי","insurance":0,"branch":2},{"form":222300,"name":"ציפורה וייס","phone":"0542521528","device":"פוקופון","issue":"ניקוי וירוסים","fixed":null,"internal":null,"charge":150,"parts":null,"cost":0,"imei":null,"status":"נמסר ללקוח","received":"31/03/2026","delivered":"31/03/2026 11:36","waitDays":0,"labHours":1,"receivedBy":9924,"custType":"פרטי","insurance":0,"branch":2},{"form":222301,"name":"בינמין וניקוב","phone":"0543988070","device":"העברת מידע","issue":"העברת מידע מלנובו לHP","fixed":"בוצע העברת מידע","internal":null,"charge":0,"parts":null,"cost":0,"imei":null,"status":"תוקן","received":"31/03/2026","delivered":null,"waitDays":0,"labHours":null,"receivedBy":9906,"custType":"פרטי","insurance":0,"branch":2},{"form":222302,"name":"דיפאני","phone":"0534285785","device":"One PLUS  nord n20 se","issue":"קוד 123456\nלברר דגם לעדכן לקוח במחיר ולהחליף מסך","fixed":null,"internal":null,"charge":0,"parts":null,"cost":0,"imei":null,"status":"מושבת","received":"09/04/2026","delivered":null,"waitDays":11,"labHours":null,"receivedBy":9924,"custType":"פרטי","insurance":0,"branch":2},{"form":222303,"name":"סלו זלבסקי","phone":"0528308345","device":"S10","issue":"מס לעדכון0524767030 אשתו\nהעברת נתונים מS10 לS25","fixed":null,"internal":null,"charge":0,"parts":null,"cost":0,"imei":null,"status":"נמסר ללקוח","received":"09/04/2026","delivered":"09/04/2026 15:59","waitDays":11,"labHours":5,"receivedBy":9924,"custType":"פרטי","insurance":0,"branch":2},{"form":222304,"name":"ג'קי רוזן חקירות","phone":"0505223330","device":"21 אולטרה","issue":"נפל ומאז דלק ליום וכבה ולא נדלק","fixed":null,"internal":null,"charge":180,"parts":null,"cost":0,"imei":null,"status":"נמסר ללקוח","received":"09/04/2026","delivered":"10/04/2026 09:24","waitDays":11,"labHours":23,"receivedBy":8898,"custType":"פרטי","insurance":0,"branch":2},{"form":222305,"name":"דוד אשרינו","phone":"0552727699","device":"S20FE","issue":"החלפת מסך 2488","fixed":"הוחלף מסך אבל הטלפון לא נטען כי יש בעיה בקונקטור של הפלאט","internal":null,"charge":180,"parts":null,"cost":0,"imei":null,"status":"תוקן","received":"09/04/2026","delivered":null,"waitDays":4,"labHours":null,"receivedBy":9924,"custType":"פרטי","insurance":0,"branch":2},{"form":222306,"name":"דוד צרפתי","phone":"0545904925","device":"אייפון וסמסונג","issue":"העברת נתונים מסמסונג לאייפון \nקוד לסמסונג hallel1234\nקוד לאייפון 201136","fixed":"בוצע העברת מידע","internal":null,"charge":250,"parts":null,"cost":0,"imei":null,"status":"נמסר ללקוח","received":"09/04/2026","delivered":"13/04/2026 11:58","waitDays":3,"labHours":96,"receivedBy":9924,"custType":"פרטי","insurance":0,"branch":2},{"form":222307,"name":"מיכל שאז","phone":"0549198647","device":"שיומי","issue":"נפל לים","fixed":null,"internal":"בוצע ניקוי קורוזיה\nהוחלף פלט מגשר בין מסך ללוח ועדיין אין תצוגה\nכנראה מסך לא תקין וכבר לא שווה לתקן יכול להגיע סביב ה900+ תיקון\nהוסבר ללקוחה צריכה לעדכן מה לעשות","charge":0,"parts":null,"cost":0,"imei":null,"status":"ממתין","received":"09/04/2026","delivered":null,"waitDays":11,"labHours":null,"receivedBy":8898,"custType":"פרטי","insurance":0,"branch":2},{"form":222308,"name":"אברהם הורביץ","phone":"0552442220","device":"A56","issue":"סימן מים בטעינה.","fixed":"בוצע החלפת שקע טעינה","internal":null,"charge":250,"parts":null,"cost":70,"imei":null,"status":"נמסר ללקוח","received":"09/04/2026","delivered":"19/04/2026 10:53","waitDays":3,"labHours":239,"receivedBy":8898,"custType":"פרטי","insurance":0,"branch":2},{"form":222309,"name":"אבינועם קריספין","phone":"0523003497","device":"העברת מידע לA56","issue":"Shaban\n\nהעברת מידע","fixed":null,"internal":null,"charge":0,"parts":null,"cost":0,"imei":null,"status":"נמסר ללקוח","received":"09/04/2026","delivered":"09/04/2026 16:00","waitDays":11,"labHours":4,"receivedBy":9906,"custType":"פרטי","insurance":0,"branch":2},{"form":222310,"name":"דודי גודברג","phone":"0524800873","device":"פוקו X3GT","issue":"החלפת מסך","fixed":null,"internal":null,"charge":0,"parts":null,"cost":0,"imei":null,"status":"נמסר ללקוח","received":"09/04/2026","delivered":"14/04/2026 13:28","waitDays":11,"labHours":121,"receivedBy":9906,"custType":"פרטי","insurance":0,"branch":2},{"form":222311,"name":"מוריה ארוניין","phone":"0584774841","device":"A16","issue":"נפל למים \nאין טאץ \n180 בדיקה וניסיון אם צריך להחליף לעדכן","fixed":"ניקוי קורוזיה מהקונקטור של המסך","internal":null,"charge":180,"parts":null,"cost":0,"imei":null,"status":"נמסר ללקוח","received":"09/04/2026","delivered":"10/04/2026 09:25","waitDays":0,"labHours":20,"receivedBy":9906,"custType":"פרטי","insurance":0,"branch":2},{"form":222312,"name":"אנטון ליברנט","phone":"0525750573","device":"העברת מידע","issue":"העברת מידע \n323885xa\nאימות ווצאפ 383885","fixed":null,"internal":null,"charge":0,"parts":null,"cost":0,"imei":null,"status":"נמסר ללקוח","received":"09/04/2026","delivered":"09/04/2026 15:59","waitDays":11,"labHours":0,"receivedBy":9906,"custType":"פרטי","insurance":0,"branch":2},{"form":222313,"name":"אליאסף סרור","phone":"0547597097","device":"חצי טאצ","issue":"בדיקה לא נדלק בין 120-180 שקל","fixed":"הוחלף סוללה ומסף וניקוי מגעים ועדיין לא עובד","internal":null,"charge":150,"parts":null,"cost":0,"imei":null,"status":"נמסר ללקוח","received":"09/04/2026","delivered":"13/04/2026 15:15","waitDays":3,"labHours":96,"receivedBy":9906,"custType":"פרטי","insurance":0,"branch":2},{"form":222314,"name":"אילנה רבינשטיין","phone":"0506942375","device":"מחשב אייסר","issue":"לא נטען טוב בעיות המגעים\nהשקע שיש במחשב זה לא השקע המקורי","fixed":"בוצע פתיחה למחשב \nבוצע תיקון הלחמות \nמחשב נטען ועובד תקין","internal":"מחשב נפתח\nהשקע נראה מולחם עקום\nממתין להחלפת שקע הלחמה","charge":250,"parts":null,"cost":0,"imei":null,"status":"תוקן","received":"09/04/2026","delivered":null,"waitDays":10,"labHours":null,"receivedBy":9906,"custType":"פרטי","insurance":0,"branch":2},{"form":222315,"name":"אביה פרידמן","phone":"0585535126","device":"S24FE","issue":"מסך שבור\n1456","fixed":null,"internal":null,"charge":560,"parts":null,"cost":260,"imei":null,"status":"נמסר ללקוח","received":"10/04/2026","delivered":"13/04/2026 10:26","waitDays":2,"labHours":73,"receivedBy":9906,"custType":"פרטי","insurance":0,"branch":2},{"form":222316,"name":"לאה מימון","phone":"0586543213","device":"אייפון 13 פרו","issue":"להרכיב מסך להעברת מידע \n210899\nמסך100\nהעברה כבל 250\nהעברה מחשב 250 כל שימוש","fixed":null,"internal":"050-9961163\n1235789 קוד","charge":0,"parts":null,"cost":0,"imei":null,"status":"ממתין","received":"10/04/2026","delivered":null,"waitDays":10,"labHours":null,"receivedBy":9906,"custType":"פרטי","insurance":0,"branch":2},{"form":222317,"name":"שפרה קורן","phone":"0528119748","device":"חצי טאצ","issue":"שקע טעינה נראה שרוף כשמחברים למטען מעלה עדן\n150 עלות בדיקה","fixed":"הוחלף שקע","internal":null,"charge":250,"parts":null,"cost":0,"imei":null,"status":"נמסר ללקוח","received":"10/04/2026","delivered":"13/04/2026 17:01","waitDays":2,"labHours":79,"receivedBy":9906,"custType":"פרטי","insurance":0,"branch":2},{"form":222318,"name":"דר סוזן","phone":"0505882343","device":"מחשב HP","issue":"בעיה בעדכונים של ווינדוס","fixed":"בוצעו עדכונים, לקראת סיום העדכונים לקוחה החליטה לרכוש מחשב חדש","internal":null,"charge":0,"parts":null,"cost":0,"imei":null,"status":"מושבת","received":"12/04/2026","delivered":null,"waitDays":4,"labHours":null,"receivedBy":9924,"custType":"פרטי","insurance":0,"branch":2},{"form":222319,"name":"אוריה סקולניק","phone":"0522308856","device":"A25","issue":"מסך לא עובד","fixed":"לא הושאר הטלפון לתיקון","internal":null,"charge":0,"parts":null,"cost":0,"imei":null,"status":"נמסר ללקוח","received":"12/04/2026","delivered":"12/04/2026 11:04","waitDays":8,"labHours":1,"receivedBy":9924,"custType":"פרטי","insurance":0,"branch":2},{"form":222320,"name":"סוזן מונטיה","phone":"0586622677","device":"רדמי ישן","issue":"להוציא מידע. עלות בדיקה שולם 150 להעביר מידע לארדיסק 1TB","fixed":null,"internal":"הביאה טלפון סמסונג להעברת מידע שצריך לפרמט","charge":0,"parts":null,"cost":0,"imei":null,"status":"תוקן","received":"12/04/2026","delivered":null,"waitDays":7,"labHours":null,"receivedBy":8898,"custType":"פרטי","insurance":0,"branch":2},{"form":222321,"name":"יריב כהנה","phone":"0525456018","device":"A50","issue":"בעיות טעינה.","fixed":"בוצע בדיקה מכשיר מושבת","internal":null,"charge":120,"parts":null,"cost":0,"imei":null,"status":"נמסר ללקוח","received":"12/04/2026","delivered":"12/04/2026 16:31","waitDays":0,"labHours":6,"receivedBy":8898,"custType":"פרטי","insurance":0,"branch":2},{"form":222322,"name":"בת ציון פרץ","phone":"0584312759","device":"מחשב ASUS","issue":"שקע טעינה","fixed":"נפתח מחשב\nזיהוי קצר/רכיב שרוף בלוח\nבוצע נסיון ניקוי וטעינה מחדש ללא תגובה אין קבלת זרם","internal":"נפתח מחשב\nזיהוי קצר/רכיב שרוף בלוח\nבוצע נסיון ניקוי וטעינה מחדש ללא תגובה אין קבלת זרם\nצריך להתקשר ללקוח להחליט אם לנסות לבצע תיקון/הלחמה בלוח","charge":250,"parts":null,"cost":0,"imei":null,"status":"מושבת","received":"12/04/2026","delivered":null,"waitDays":8,"labHours":null,"receivedBy":9924,"custType":"פרטי","insurance":0,"branch":2},{"form":222323,"name":"יהודה מוסבכר","phone":"0586760000","device":"מחשב nuk","issue":"המחשב לא עולה","fixed":"בוצעה החלפת SSD 512 כולל מערכת הפעלה","internal":null,"charge":0,"parts":1150,"cost":244.1,"imei":null,"status":"תוקן","received":"12/04/2026","delivered":null,"waitDays":4,"labHours":null,"receivedBy":9924,"custType":"פרטי","insurance":0,"branch":2},{"form":222324,"name":"דוראני צורנתן","phone":"0507483360","device":"חצי טאצ","issue":"עושה לעצמו כיבוי והפעלה לבד\nנקנה פה לפני 3 חודשים","fixed":null,"internal":null,"charge":0,"parts":null,"cost":0,"imei":null,"status":"ממתין","received":"12/04/2026","delivered":null,"waitDays":8,"labHours":null,"receivedBy":9906,"custType":"פרטי","insurance":0,"branch":2},{"form":222325,"name":"מרכז המבקרים לגעת בנצח","phone":"0506806107","device":"מחשב מיני לנובו","issue":"לא נדלק","fixed":"בוצעה בדיקה המחשב לא מגיב לשום דבר צריך לפנות לאחריות","internal":null,"charge":180,"parts":null,"cost":0,"imei":null,"status":"נמסר ללקוח","received":"12/04/2026","delivered":"19/04/2026 14:37","waitDays":8,"labHours":168,"receivedBy":9906,"custType":"פרטי","insurance":0,"branch":2},{"form":222326,"name":"יהודה הגר","phone":"0587903940","device":"15C","issue":"העברת נתונים ממ13 ל15C\nקוד 9410","fixed":null,"internal":null,"charge":0,"parts":null,"cost":0,"imei":null,"status":"נמסר ללקוח","received":"12/04/2026","delivered":"12/04/2026 20:45","waitDays":8,"labHours":6,"receivedBy":9924,"custType":"פרטי","insurance":0,"branch":2},{"form":222327,"name":"אסנת מזרחי","phone":"0542220539","device":"A53","issue":"העברת מידע","fixed":null,"internal":null,"charge":150,"parts":null,"cost":0,"imei":null,"status":"נמסר ללקוח","received":"13/04/2026","delivered":"14/04/2026 13:06","waitDays":1,"labHours":27,"receivedBy":8898,"custType":"פרטי","insurance":0,"branch":2},{"form":222328,"name":"ג'יקוב האקיפ","phone":"0547546962","device":"A07","issue":"החלפת מסך \nקוד 9875321654","fixed":null,"internal":"הוחלף מסך, לא מושך חשמל.","charge":370,"parts":null,"cost":0,"imei":null,"status":"נמסר ללקוח","received":"13/04/2026","delivered":"16/04/2026 11:52","waitDays":2,"labHours":73,"receivedBy":9924,"custType":"פרטי","insurance":0,"branch":2},{"form":222329,"name":"נעמי טויטו","phone":"0586965143","device":null,"issue":"להחליף גב. וזכוכית מצלמה ומגן מסך קידמי\n137679","fixed":"הוחלף גב אחורי וזכוכית מצלמה","internal":null,"charge":960,"parts":null,"cost":0,"imei":null,"status":"נמסר ללקוח","received":"13/04/2026","delivered":"13/04/2026 18:11","waitDays":0,"labHours":7,"receivedBy":8898,"custType":"פרטי","insurance":0,"branch":2},{"form":222330,"name":"סוזן מונטיה","phone":"0586622677","device":"J7","issue":"אין קוד. לפרמט J7 ולהעביר אליו נתונים מהטלפון הישן.\n0505882343 יוחנן )בעלה)","fixed":null,"internal":null,"charge":0,"parts":null,"cost":0,"imei":null,"status":"מושבת","received":"14/04/2026","delivered":null,"waitDays":6,"labHours":null,"receivedBy":9924,"custType":"פרטי","insurance":0,"branch":2},{"form":222331,"name":"דדי בלאו","phone":"0528903500","device":"M32 לA26","issue":"העברת נתונים \nסיסמא לטלפון 3329","fixed":null,"internal":null,"charge":0,"parts":null,"cost":0,"imei":null,"status":"נמסר ללקוח","received":"14/04/2026","delivered":"14/04/2026 19:57","waitDays":6,"labHours":8,"receivedBy":9924,"custType":"פרטי","insurance":0,"branch":2},{"form":222332,"name":"יצחק להונגדין","phone":"0549084051","device":"אייפון 13 פרו","issue":"טלפון נפל למים ולא נדלק. ניקוי קורוזיה.","fixed":null,"internal":null,"charge":0,"parts":null,"cost":0,"imei":null,"status":"ממתין","received":"14/04/2026","delivered":null,"waitDays":6,"labHours":null,"receivedBy":9924,"custType":"פרטי","insurance":0,"branch":2},{"form":222333,"name":"ידידיה","phone":"0504505553","device":"אייפון 11","issue":"טלפון נפל למים מייד אחר כן נטען ומאז לא עובד. לבדוק קורוזיה. \nהוחלפה בטריה בלי קשר.","fixed":null,"internal":null,"charge":0,"parts":null,"cost":0,"imei":null,"status":"ממתין","received":"14/04/2026","delivered":null,"waitDays":6,"labHours":null,"receivedBy":9924,"custType":"פרטי","insurance":0,"branch":2},{"form":222334,"name":"חגית טובוי","phone":"0543418757","device":"שיאומי","issue":"ניקוי וירוסים ולצאת ממצב נגישות","fixed":"ניקוי וירוסים","internal":null,"charge":150,"parts":null,"cost":0,"imei":null,"status":"נמסר ללקוח","received":"14/04/2026","delivered":"15/04/2026 14:58","waitDays":1,"labHours":23,"receivedBy":9906,"custType":"פרטי","insurance":0,"branch":2},{"form":222335,"name":"איילת שלם","phone":"0523543634","device":"אייפון 15","issue":"זמינה 0546588555\n5555","fixed":"בוצע החלפת מסך","internal":null,"charge":0,"parts":450,"cost":150,"imei":null,"status":"נמסר ללקוח","received":"14/04/2026","delivered":"15/04/2026 16:42","waitDays":1,"labHours":24,"receivedBy":9906,"custType":"פרטי","insurance":0,"branch":2},{"form":222336,"name":"נתנאל אקריש","phone":"0534248935","device":"רדמי )לברר איזה)","issue":"לא נכנס מטען לשקע הטענה","fixed":"הןחלף שקע טעינה","internal":null,"charge":250,"parts":250,"cost":49.6,"imei":null,"status":"נמסר ללקוח","received":"15/04/2026","delivered":"15/04/2026 12:50","waitDays":0,"labHours":2,"receivedBy":9924,"custType":"פרטי","insurance":0,"branch":2},{"form":222337,"name":"צברי ברכה","phone":"0547501653","device":"סמסונג A25","issue":"ניקוי וירוסים","fixed":"נוקה","internal":null,"charge":150,"parts":null,"cost":0,"imei":null,"status":"נמסר ללקוח","received":"15/04/2026","delivered":"15/04/2026 12:20","waitDays":0,"labHours":1,"receivedBy":9924,"custType":"פרטי","insurance":0,"branch":2},{"form":222338,"name":"מרגוליס דוד","phone":"0545656070","device":"A36","issue":"העברת נתונים משיאומי לA36\n12365","fixed":null,"internal":null,"charge":0,"parts":null,"cost":0,"imei":null,"status":"נמסר ללקוח","received":"15/04/2026","delivered":"15/04/2026 13:58","waitDays":5,"labHours":2,"receivedBy":9924,"custType":"פרטי","insurance":0,"branch":2},{"form":222339,"name":"מתן הלנזר","phone":"0548020174","device":"A34","issue":"טלפון התרסק והתעקם.\nלהוציא מידע לדיסק און קי (חשוב קבצים ותמונות) \nלהכניס לדיסק און קי שלנו ויקנה.","fixed":"הוחלף מסך זמני והעבר מידע","internal":null,"charge":200,"parts":null,"cost":0,"imei":null,"status":"נמסר ללקוח","received":"15/04/2026","delivered":"15/04/2026 14:40","waitDays":0,"labHours":3,"receivedBy":9924,"custType":"פרטי","insurance":0,"branch":2},{"form":222340,"name":"יהודה פרדז","phone":"0586228112","device":"אייפון 17","issue":"העברה מאייפון לאייפון","fixed":null,"internal":null,"charge":0,"parts":null,"cost":0,"imei":null,"status":"נמסר ללקוח","received":"15/04/2026","delivered":"16/04/2026 15:05","waitDays":5,"labHours":28,"receivedBy":9906,"custType":"פרטי","insurance":0,"branch":2},{"form":222341,"name":"צופיה נאה","phone":"0523573818","device":"מחשב HH","issue":"העברת מידע","fixed":null,"internal":null,"charge":0,"parts":null,"cost":0,"imei":null,"status":"נמסר ללקוח","received":"15/04/2026","delivered":"16/04/2026 15:05","waitDays":5,"labHours":28,"receivedBy":9906,"custType":"פרטי","insurance":0,"branch":2},{"form":222342,"name":"יוסי גלעד","phone":"0527204751","device":"A33","issue":"העברת נתונים לA36","fixed":null,"internal":null,"charge":0,"parts":null,"cost":0,"imei":null,"status":"נמסר ללקוח","received":"15/04/2026","delivered":"15/04/2026 16:31","waitDays":5,"labHours":4,"receivedBy":9924,"custType":"פרטי","insurance":0,"branch":2},{"form":222343,"name":"ענת שיינברג","phone":"0503056544","device":"ניקוי וירוסים","issue":"ניקוי וירוסים","fixed":"נוקו וירוסים","internal":null,"charge":150,"parts":null,"cost":0,"imei":null,"status":"נמסר ללקוח","received":"15/04/2026","delivered":"15/04/2026 15:58","waitDays":0,"labHours":3,"receivedBy":9906,"custType":"פרטי","insurance":0,"branch":2},{"form":222344,"name":"דניאל טורס","phone":"0548363362","device":"A30","issue":"העברת נתונים לA17","fixed":null,"internal":null,"charge":0,"parts":null,"cost":0,"imei":null,"status":"נמסר ללקוח","received":"15/04/2026","delivered":"15/04/2026 16:40","waitDays":5,"labHours":4,"receivedBy":9924,"custType":"פרטי","insurance":0,"branch":2},{"form":222345,"name":"יוסף בסה","phone":"0584403855","device":"פוקו F5","issue":"החלפת מסך וסוללה \n159632478\nיש בעיות קליטה לשים לב אם משהו מוזר באנטנות","fixed":"הוחלף מסך וסוללה","internal":null,"charge":730,"parts":null,"cost":0,"imei":null,"status":"נמסר ללקוח","received":"16/04/2026","delivered":"17/04/2026 08:57","waitDays":1,"labHours":22,"receivedBy":9924,"custType":"פרטי","insurance":0,"branch":2},{"form":222346,"name":"חנן שושן","phone":"0556893328","device":"מחשב נייח","issue":"שני מחשבים לבדוק אם קיים לוח אם זהה","fixed":"אין לספקים לוחות כאלה","internal":"דגם מחשב 1:\nGigabyte GA-G41M-Combo \nפירוט משוער בלבד: REV:1.3 DDR2/DDR3 Socket 775\nבמור לוי וCD COM אין כנראה\nיש בEBAY\nקישור אפשרי: https://www.ebay.com/itm/225068845401\n\nדגם מחשב 2: \nBIOSTAR G41D3\nפירוט משוער: G41/CH7 Socket 775\nבמור לוי וCD COM אין כנראה\nיש בEBAY\nקישור אפשרי:  https://www.ebay.com/itm/226285132139","charge":0,"parts":null,"cost":0,"imei":null,"status":"מושבת","received":"16/04/2026","delivered":null,"waitDays":4,"labHours":null,"receivedBy":9924,"custType":"פרטי","insurance":0,"branch":2},{"form":222347,"name":"רננה","phone":"0528903918","device":"X3","issue":"טלפון לא נטען כרגע בלי סוללה\nקוד 3636","fixed":"פלט היה מנותק וברגים רופפים ומשוחררים. חיבור מחדש של הפלט וחיזוק כל הברגים.","internal":null,"charge":180,"parts":null,"cost":0,"imei":null,"status":"נמסר ללקוח","received":"16/04/2026","delivered":"19/04/2026 13:48","waitDays":3,"labHours":75,"receivedBy":9924,"custType":"פרטי","insurance":0,"branch":2},{"form":222348,"name":"רון לזרס","phone":"0506047996","device":"11 פרו מקס","issue":"מסך משתגע ונלחץ לבד\n0523088164 זמין \n141610","fixed":"בוצע פתיחה, ובדיקה. בפנים נראה תקין.. ומסך חדש גם לא עובד..","internal":"עודכן שצריך להחליף מסך ואישר","charge":180,"parts":null,"cost":0,"imei":null,"status":"נמסר ללקוח","received":"16/04/2026","delivered":"20/04/2026 17:22","waitDays":4,"labHours":103,"receivedBy":9924,"custType":"פרטי","insurance":0,"branch":2},{"form":222349,"name":"דוד אשרינו","phone":"0552727699","device":"XS20 fe","issue":"החלפת מסך \n2488","fixed":"הוחלף מסך","internal":null,"charge":700,"parts":700,"cost":393.3,"imei":null,"status":"נמסר ללקוח","received":"16/04/2026","delivered":"19/04/2026 17:15","waitDays":3,"labHours":78,"receivedBy":9924,"custType":"פרטי","insurance":0,"branch":2},{"form":222350,"name":"מומי","phone":"0507777453","device":"A52","issue":"אין תצוגה","fixed":"הוחלף מסך","internal":null,"charge":540,"parts":540,"cost":292.6,"imei":null,"status":"נמסר ללקוח","received":"16/04/2026","delivered":"19/04/2026 13:38","waitDays":3,"labHours":74,"receivedBy":9924,"custType":"פרטי","insurance":0,"branch":2},{"form":222351,"name":"חולהרנג אבן עזר","phone":"0502389998","device":"רדמי","issue":"ניקוי וירוסים","fixed":"ניקוי","internal":null,"charge":150,"parts":null,"cost":0,"imei":null,"status":"נמסר ללקוח","received":"17/04/2026","delivered":"17/04/2026 09:52","waitDays":0,"labHours":0,"receivedBy":9924,"custType":"פרטי","insurance":0,"branch":2},{"form":222352,"name":"נעמה אתרוג","phone":"0525665811","device":"אנדרואיד","issue":"ניקוי וירוסים\n1258","fixed":null,"internal":null,"charge":0,"parts":null,"cost":0,"imei":null,"status":"נמסר ללקוח","received":"17/04/2026","delivered":"17/04/2026 11:40","waitDays":3,"labHours":0,"receivedBy":9924,"custType":"פרטי","insurance":0,"branch":2},{"form":222353,"name":"יעקוב ברמסון","phone":"0584445480","device":"אייפון ופוקו","issue":"ווטסאפ נתקע אחרי העברה שעשינו פה מאנדרואיד לאייפון \n12369","fixed":null,"internal":null,"charge":0,"parts":null,"cost":0,"imei":null,"status":"מושבת","received":"17/04/2026","delivered":null,"waitDays":3,"labHours":null,"receivedBy":9924,"custType":"פרטי","insurance":0,"branch":2},{"form":222354,"name":"יהושע","phone":"0542307652","device":"מחשב נייח DELL","issue":"העברת נתונים למחשב חדש","fixed":null,"internal":null,"charge":0,"parts":null,"cost":0,"imei":null,"status":"ממתין","received":"19/04/2026","delivered":null,"waitDays":1,"labHours":null,"receivedBy":9924,"custType":"פרטי","insurance":0,"branch":2},{"form":222355,"name":"שלמה ג'בלון","phone":"0525136070","device":"S24  פלוס","issue":"העברת מידע מF54 לS24 \nקוד 159654","fixed":null,"internal":null,"charge":0,"parts":null,"cost":0,"imei":null,"status":"נמסר ללקוח","received":"19/04/2026","delivered":"19/04/2026 17:17","waitDays":1,"labHours":6,"receivedBy":9924,"custType":"פרטי","insurance":0,"branch":2},{"form":222356,"name":"גבריאלה","phone":"0547193599","device":"מיני HP","issue":"מחשב לא נדלק","fixed":null,"internal":null,"charge":0,"parts":null,"cost":0,"imei":null,"status":"ממתין","received":"19/04/2026","delivered":null,"waitDays":1,"labHours":null,"receivedBy":9906,"custType":"פרטי","insurance":0,"branch":2},{"form":222357,"name":"גילי פשייב","phone":"0537257493","device":"אייפון 16","issue":"גירסה חדשה כל המידע ימחק\n3012\nזמינה 0522335920","fixed":"בוצע גירסא חדשה והפעלת מכשיר.","internal":null,"charge":250,"parts":null,"cost":0,"imei":null,"status":"נמסר ללקוח","received":"19/04/2026","delivered":"19/04/2026 17:51","waitDays":0,"labHours":5,"receivedBy":9906,"custType":"פרטי","insurance":0,"branch":2},{"form":222358,"name":"אייל נתן","phone":"0504421192","device":"S21","issue":"בעיית קליטה\n2589","fixed":"הלחמות של האנטנות","internal":null,"charge":250,"parts":null,"cost":0,"imei":null,"status":"נמסר ללקוח","received":"19/04/2026","delivered":"19/04/2026 13:59","waitDays":0,"labHours":1,"receivedBy":9924,"custType":"פרטי","insurance":0,"branch":2},{"form":222359,"name":"אלעד לוי","phone":"0507942849","device":"מחשב HP","issue":"שקע טעינה","fixed":null,"internal":null,"charge":0,"parts":null,"cost":0,"imei":null,"status":"ממתין","received":"19/04/2026","delivered":null,"waitDays":1,"labHours":null,"receivedBy":9906,"custType":"פרטי","insurance":0,"branch":2},{"form":222360,"name":"אלעד לוי","phone":"0507942849","device":"מחשב Hפ","issue":"שקע טעינה\nצריך לאשר עבודה","fixed":null,"internal":null,"charge":0,"parts":null,"cost":0,"imei":null,"status":"ממתין","received":"19/04/2026","delivered":null,"waitDays":1,"labHours":null,"receivedBy":9906,"custType":"פרטי","insurance":0,"branch":2},{"form":222361,"name":"אבירם מנגלוט","phone":"0559337091","device":"A73","issue":"לא ניטען","fixed":null,"internal":null,"charge":0,"parts":null,"cost":0,"imei":null,"status":"ממתין","received":"19/04/2026","delivered":null,"waitDays":1,"labHours":null,"receivedBy":9918,"custType":"פרטי","insurance":0,"branch":2},{"form":222362,"name":"יעלה סדובסקי","phone":"0509965126","device":"רדמי 13 וA56","issue":"העברת נתונים שיאומי רדמי 13 לסמסונג A56 \nאותו קוד 9965","fixed":"הועברו נתונים","internal":null,"charge":150,"parts":null,"cost":0,"imei":null,"status":"נמסר ללקוח","received":"19/04/2026","delivered":"20/04/2026 14:21","waitDays":1,"labHours":22,"receivedBy":9924,"custType":"פרטי","insurance":0,"branch":2},{"form":222363,"name":"אברהם חן ציון","phone":"0545766817","device":"מחשב DELL","issue":"הטענה נכבית ונדלקת כל רגע.\n1993","fixed":null,"internal":null,"charge":0,"parts":null,"cost":0,"imei":null,"status":"מושבת","received":"19/04/2026","delivered":null,"waitDays":1,"labHours":null,"receivedBy":9924,"custType":"פרטי","insurance":0,"branch":2},{"form":222364,"name":"נתנאל אפשטיין","phone":"0527710642","device":"A16","issue":"החלפת מסך \n4753","fixed":null,"internal":null,"charge":500,"parts":500,"cost":250,"imei":null,"status":"תוקן","received":"20/04/2026","delivered":null,"waitDays":0,"labHours":null,"receivedBy":9924,"custType":"פרטי","insurance":0,"branch":2},{"form":222365,"name":"טליה חבבו","phone":"0552502332","device":"חצי טאצ A16","issue":"לא קולט wi fi","fixed":null,"internal":null,"charge":0,"parts":null,"cost":0,"imei":null,"status":"ממתין","received":"20/04/2026","delivered":null,"waitDays":0,"labHours":null,"receivedBy":9924,"custType":"פרטי","insurance":0,"branch":2},{"form":222366,"name":"אביתר עמר","phone":"0545639224","device":"A24","issue":"עשה עם לחץ אוויר ולא שומעים אותו יותר","fixed":"בוצע החלפת שקע טעינה","internal":null,"charge":250,"parts":null,"cost":0,"imei":null,"status":"נמסר ללקוח","received":"20/04/2026","delivered":"20/04/2026 15:56","waitDays":0,"labHours":1,"receivedBy":9906,"custType":"פרטי","insurance":0,"branch":2},{"form":222367,"name":"בועז לנדאו","phone":"0525698067","device":"רדמי נוט 12S","issue":"לעדכן כשמגיע מסך","fixed":null,"internal":null,"charge":0,"parts":null,"cost":0,"imei":null,"status":"ממתין","received":"20/04/2026","delivered":null,"waitDays":0,"labHours":null,"receivedBy":9924,"custType":"פרטי","insurance":0,"branch":2},{"form":222368,"name":"אושר בוזגלו","phone":"0584373488","device":"אייפון 12","issue":"החלפת סוללה \n357035","fixed":null,"internal":null,"charge":0,"parts":null,"cost":0,"imei":null,"status":"ממתין","received":"20/04/2026","delivered":null,"waitDays":0,"labHours":null,"receivedBy":9924,"custType":"פרטי","insurance":0,"branch":2},{"form":null,"name":null,"phone":null,"device":null,"issue":null,"fixed":null,"internal":null,"charge":28560,"parts":null,"cost":7691.28,"imei":null,"status":null,"received":null,"delivered":null,"waitDays":null,"labHours":null,"receivedBy":null,"custType":null,"insurance":0,"branch":null}];
+</script>
+
+<!-- ============================================= -->
+<!-- APP LOGIC                                     -->
+<!-- ============================================= -->
+<script>
+'use strict';
+
+// ========== State ==========
+const state = {
+  repairs: [],
+  filter: 'all',
+  search: '',
+  sort: 'recent',
+  sentLog: [],  // {form, name, phone, method, ts}
+  template: null,
+  config: {
+    mode: 'wame',  // 'wame' | 'meta'
+    phoneNumberId: '',
+    accessToken: '',
+    templateName: '',
+    languageCode: 'he',
+    useTemplate: false,
+    businessName: 'ComPhone',
+    businessHours: 'א\'–ה\' 09:00–19:00 · ו\' 09:00–13:00',
+    businessAddress: '',
+  },
+};
+
+const DEFAULT_TEMPLATE = `היי {name} 👋
+
+המכשיר שלך *{device}* מוכן לאיסוף במעבדת {business} 🔧✨
+
+📋 *פירוט התיקון*
+• התקלה: {issue}
+• הפתרון: {fixed}
+• מס' טופס: {form}
+
+💰 *לתשלום:* {price} ₪
+
+🕐 שעות פעילות: {hours}
+
+נשמח לראותך!
+צוות {business}`;
+
+state.template = DEFAULT_TEMPLATE;
+
+// ========== Helpers ==========
+const STATUS_COLORS = {
+  'תוקן': { cls: 'warn', label: 'תוקן · ממתין לאיסוף' },
+  'נמסר ללקוח': { cls: 'success', label: 'נמסר ללקוח' },
+  'מושבת': { cls: 'danger', label: 'מושבת' },
+  'ממתין': { cls: 'muted', label: 'ממתין' },
+  'ממתין לתשובה מלקוח': { cls: 'purple', label: 'ממתין לתשובה' },
+};
+
+const statusLabel = (s) => (STATUS_COLORS[s] && STATUS_COLORS[s].label) || s || 'ללא סטטוס';
+
+function formatPhoneDisplay(p) {
+  if (!p) return '—';
+  const s = String(p).replace(/\D/g, '');
+  if (s.length === 10) return s.slice(0,3) + '-' + s.slice(3,6) + '-' + s.slice(6);
+  return s;
+}
+
+function formatPhoneIntl(p) {
+  if (!p) return null;
+  let s = String(p).replace(/\D/g, '');
+  if (s.startsWith('972')) return s;
+  if (s.startsWith('0')) s = s.slice(1);
+  return '972' + s;
+}
+
+function parseDate(s) {
+  if (!s) return null;
+  // formats: "dd/mm/yyyy" or "dd/mm/yyyy hh:mm"
+  const m = String(s).match(/^(\d{2})\/(\d{2})\/(\d{4})(?:\s+(\d{1,2}):(\d{2}))?/);
+  if (!m) return null;
+  const [_, dd, mm, yy, hh = '0', mi = '0'] = m;
+  return new Date(+yy, +mm - 1, +dd, +hh, +mi);
+}
+
+function formatMoney(n) {
+  if (n == null || isNaN(n)) return '—';
+  return '₪' + Number(n).toLocaleString('he-IL');
+}
+
+function escapeHtml(s) {
+  if (s == null) return '';
+  return String(s)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
+
+function fillTemplate(tpl, r) {
+  const business = state.config.businessName || 'ComPhone';
+  const hours = state.config.businessHours || '';
+  const address = state.config.businessAddress || '';
+  const price = (r.charge && r.charge > 0) ? Number(r.charge).toLocaleString('he-IL') : '—';
+  return tpl
+    .replace(/\{name\}/g, r.name || 'לקוח יקר')
+    .replace(/\{device\}/g, r.device || '—')
+    .replace(/\{issue\}/g, (r.issue || '—').replace(/\n/g, ' '))
+    .replace(/\{fixed\}/g, (r.fixed || 'בוצע טיפול במעבדה').replace(/\n/g, ' '))
+    .replace(/\{form\}/g, r.form || '—')
+    .replace(/\{price\}/g, price)
+    .replace(/\{phone\}/g, formatPhoneDisplay(r.phone))
+    .replace(/\{received\}/g, r.received || '—')
+    .replace(/\{status\}/g, r.status || '—')
+    .replace(/\{business\}/g, business)
+    .replace(/\{hours\}/g, hours)
+    .replace(/\{address\}/g, address);
+}
+
+function isSent(r) {
+  return state.sentLog.some(x => x.form === r.form);
+}
+
+// ========== Stats ==========
+function renderStats() {
+  const all = state.repairs;
+  const needsWA = all.filter(r => r.status === 'תוקן').length;
+  const delivered = all.filter(r => r.status === 'נמסר ללקוח').length;
+  const revenue = all.reduce((s, r) => s + (Number(r.charge) || 0), 0);
+  document.getElementById('sTotal').textContent = all.length;
+  document.getElementById('sTotalSub').textContent =
+    'מתוך ' + all.length + ' רשומות';
+  document.getElementById('sNeedsWA').textContent = needsWA;
+  document.getElementById('sDelivered').textContent = delivered;
+  document.getElementById('sDeliveredSub').textContent =
+    Math.round((delivered / Math.max(all.length, 1)) * 100) + '% מכלל התיקונים';
+  document.getElementById('sRevenue').textContent = formatMoney(revenue);
+}
+
+// ========== Chips ==========
+function renderChips() {
+  const row = document.getElementById('chipsRow');
+  const counts = { all: state.repairs.length };
+  const order = ['all', 'תוקן', 'ממתין', 'מושבת', 'ממתין לתשובה מלקוח', 'נמסר ללקוח'];
+  for (const r of state.repairs) {
+    counts[r.status || ''] = (counts[r.status || ''] || 0) + 1;
+  }
+  row.innerHTML = '';
+  for (const key of order) {
+    const count = counts[key] || 0;
+    if (key !== 'all' && count === 0) continue;
+    const label = key === 'all' ? 'הכל' : statusLabel(key);
+    const chip = document.createElement('button');
+    chip.className = 'chip' + (state.filter === key ? ' active' : '');
+    chip.innerHTML = escapeHtml(label) + ' <span class="count">' + count + '</span>';
+    chip.onclick = () => { state.filter = key; render(); };
+    row.appendChild(chip);
+  }
+}
+
+// ========== Filter + Sort ==========
+function getVisible() {
+  let list = state.repairs;
+  if (state.filter !== 'all') {
+    list = list.filter(r => (r.status || '') === state.filter);
+  }
+  const q = state.search.trim().toLowerCase();
+  if (q) {
+    list = list.filter(r => {
+      const hay = [r.name, r.phone, r.device, r.issue, r.fixed, r.form, r.imei]
+        .map(x => (x == null ? '' : String(x).toLowerCase())).join(' ');
+      return hay.includes(q);
+    });
+  }
+  const byDate = (r) => parseDate(r.delivered) || parseDate(r.received) || new Date(0);
+  const copy = list.slice();
+  switch (state.sort) {
+    case 'recent': copy.sort((a,b) => byDate(b) - byDate(a)); break;
+    case 'oldest': copy.sort((a,b) => byDate(a) - byDate(b)); break;
+    case 'charge-desc': copy.sort((a,b) => (b.charge||0) - (a.charge||0)); break;
+    case 'charge-asc': copy.sort((a,b) => (a.charge||0) - (b.charge||0)); break;
+    case 'name': copy.sort((a,b) => (a.name||'').localeCompare(b.name||'', 'he')); break;
+    case 'waiting': copy.sort((a,b) => (b.waitDays||0) - (a.waitDays||0)); break;
+  }
+  return copy;
+}
+
+// ========== Cards ==========
+function renderGrid() {
+  const grid = document.getElementById('grid');
+  const empty = document.getElementById('empty');
+  const list = getVisible();
+
+  document.getElementById('resCount').textContent = list.length;
+  const sent = state.sentLog.length;
+  document.getElementById('resNote').textContent =
+    sent > 0 ? ('נשלחו ' + sent + ' הודעות בסשן זה') : '';
+
+  if (list.length === 0) { grid.innerHTML = ''; empty.classList.remove('hidden'); return; }
+  empty.classList.add('hidden');
+
+  const frag = document.createDocumentFragment();
+  for (const r of list) {
+    const card = document.createElement('div');
+    card.className = 'card';
+    if (r.status === 'תוקן' && !isSent(r)) card.classList.add('needs-wa');
+    card.setAttribute('data-s', r.status || '');
+    card.onclick = () => openDetail(r);
+
+    const status = r.status || 'ללא סטטוס';
+    const statusClass = 's-' + (status.replace(/\s+/g, '_'));
+
+    const senterBy = r.receivedBy ? ('התקבל ע"י ' + r.receivedBy) : '';
+    const received = r.received || '';
+    const metaBits = [];
+    if (received) metaBits.push(received);
+    if (r.form) metaBits.push('טופס #' + r.form);
+    if (r.waitDays != null && r.waitDays > 0) metaBits.push(r.waitDays + ' ימי המתנה');
+
+    card.innerHTML =
+      '<div class="card-head">' +
+        '<div style="flex:1;min-width:0;">' +
+          '<div class="card-name">' + escapeHtml(r.name || 'לקוח ללא שם') + '</div>' +
+          '<div class="card-meta">' +
+            metaBits.map(b => '<span>' + escapeHtml(b) + '</span>').join('<span class="dot">·</span>') +
+          '</div>' +
+        '</div>' +
+        '<span class="status-pill ' + statusClass + '">' + escapeHtml(statusLabel(status)) + '</span>' +
+      '</div>' +
+      '<div class="card-device">' +
+        '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><rect x="5" y="2" width="14" height="20" rx="2"/></svg>' +
+        escapeHtml(r.device || 'לא צוין') +
+      '</div>' +
+      (r.issue ? '<div class="field clip"><div class="k">תקלה</div><div class="v">' + escapeHtml(r.issue) + '</div></div>' : '') +
+      (r.fixed ? '<div class="field clip"><div class="k">מה תוקן</div><div class="v">' + escapeHtml(r.fixed) + '</div></div>' : '') +
+      '<div class="card-foot">' +
+        '<div class="price' + ((r.charge||0) === 0 ? ' zero' : '') + '">' +
+          '<span class="cur">₪</span>' + (r.charge != null ? Number(r.charge).toLocaleString('he-IL') : '0') +
+        '</div>' +
+        (r.phone
+          ? ('<button class="wa-btn ' + (isSent(r) ? 'sent' : '') + '" onclick="event.stopPropagation();openDetail(REPAIRS_DATA.find(x=>x.form===' + (r.form || 'null') + '))">' +
+              '<svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.37 0 0 5.37 0 12c0 2.11.55 4.19 1.6 6.02L0 24l6.2-1.63A11.93 11.93 0 0 0 12 24c6.63 0 12-5.37 12-12S18.63 0 12 0z"/></svg>' +
+              (isSent(r) ? 'נשלח' : 'וואטסאפ') +
+            '</button>')
+          : '<div style="font-size:11.5px;color:var(--ink-3);">אין טלפון</div>') +
+      '</div>';
+
+    frag.appendChild(card);
+  }
+  grid.innerHTML = '';
+  grid.appendChild(frag);
+}
+
+// ========== Master render ==========
+function render() {
+  renderStats();
+  renderChips();
+  renderGrid();
+  updateModeBanner();
+  updateLogBadge();
+}
+
+function updateModeBanner() {
+  const m = state.config.mode;
+  document.getElementById('modeText').textContent =
+    m === 'meta' ? 'Meta WhatsApp API' : 'wa.me (פתיחה ידנית)';
+  const pill = document.getElementById('modePill');
+  pill.textContent = m === 'meta' ? 'אוטומטי' : 'ידני';
+  pill.classList.toggle('live', m === 'meta');
+}
+
+function updateLogBadge() {
+  const badge = document.getElementById('logBadge');
+  const n = state.sentLog.length;
+  if (n > 0) { badge.textContent = n; badge.classList.remove('hidden'); }
+  else badge.classList.add('hidden');
+}
+
+// ========== Toast ==========
+function toast(msg, ms = 2400) {
+  const root = document.getElementById('toastRoot');
+  const el = document.createElement('div');
+  el.className = 'toast';
+  el.textContent = msg;
+  root.appendChild(el);
+  setTimeout(() => el.remove(), ms);
+}
+
+// ========== Modals ==========
+function closeModal() {
+  document.getElementById('modalRoot').innerHTML = '';
+}
+function openModalHTML(html) {
+  const root = document.getElementById('modalRoot');
+  root.innerHTML = '<div class="overlay" onclick="if(event.target===this)closeModal()">' + html + '</div>';
+}
+
+// ----- Detail + WhatsApp preview -----
+function openDetail(r) {
+  if (!r) return;
+  const msg = fillTemplate(state.template, r);
+  const already = isSent(r);
+  const intl = formatPhoneIntl(r.phone);
+  const waLink = intl ? ('https://wa.me/' + intl + '?text=' + encodeURIComponent(msg)) : '#';
+
+  const detailFields = [
+    ['שם לקוח', r.name],
+    ['טלפון', formatPhoneDisplay(r.phone)],
+    ['דגם מכשיר', r.device],
+    ['סטטוס', statusLabel(r.status)],
+    ['מס\' טופס', r.form],
+    ['IMEI', r.imei],
+    ['תאריך קבלה', r.received],
+    ['תאריך מסירה', r.delivered],
+    ['ימי המתנה', r.waitDays],
+    ['שעות במעבדה', r.labHours],
+    ['חיוב', formatMoney(r.charge)],
+    ['סכום חלקים', formatMoney(r.parts)],
+  ].filter(([_, v]) => v != null && v !== '');
+
+  const fieldsHtml = detailFields.map(([k, v]) =>
+    '<div class="field"><div class="k">' + escapeHtml(k) + '</div><div class="v">' + escapeHtml(v) + '</div></div>'
+  ).join('');
+
+  const longFields = [
+    ['תקלה', r.issue],
+    ['מה תוקן', r.fixed],
+    ['מלל פנימי', r.internal],
+  ].filter(([_, v]) => v != null && v !== '')
+   .map(([k, v]) =>
+    '<div class="field wide"><div class="k">' + escapeHtml(k) + '</div><div class="v">' + escapeHtml(v) + '</div></div>'
+  ).join('');
+
+  const modeInfo = state.config.mode === 'meta'
+    ? '<div style="font-size:12px;color:var(--ink-3);margin-top:8px;">ישלח דרך Meta WhatsApp API' + (state.config.useTemplate && state.config.templateName ? (' בתבנית "' + escapeHtml(state.config.templateName) + '"') : ' כהודעת טקסט חופשי (מתאים ב-24 שעות מפנייה אחרונה של הלקוח)') + '</div>'
+    : '<div style="font-size:12px;color:var(--ink-3);margin-top:8px;">ייפתח חלון וואטסאפ עם ההודעה מוכנה לשליחה</div>';
+
+  const sendBtn = state.config.mode === 'meta'
+    ? '<button class="btn btn-primary" onclick="sendViaAPI(' + (r.form || 'null') + ')">' +
+        '<svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.37 0 0 5.37 0 12c0 2.11.55 4.19 1.6 6.02L0 24l6.2-1.63A11.93 11.93 0 0 0 12 24c6.63 0 12-5.37 12-12S18.63 0 12 0z"/></svg>' +
+        'שלח דרך Meta API' +
+      '</button>'
+    : '<a class="btn btn-primary" href="' + waLink + '" target="_blank" onclick="markSent(' + (r.form || 'null') + ',\'wame\')">' +
+        '<svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.37 0 0 5.37 0 12c0 2.11.55 4.19 1.6 6.02L0 24l6.2-1.63A11.93 11.93 0 0 0 12 24c6.63 0 12-5.37 12-12S18.63 0 12 0z"/></svg>' +
+        'פתח בוואטסאפ' +
+      '</a>';
+
+  openModalHTML(
+    '<div class="modal wide">' +
+      '<div class="modal-head">' +
+        '<div>' +
+          '<h2>' + escapeHtml(r.name || 'לקוח') + ' · ' + escapeHtml(r.device || '') + '</h2>' +
+          '<div class="sub">טופס #' + (r.form || '—') + ' · ' + escapeHtml(statusLabel(r.status)) + (already ? ' · נשלח כבר בסשן זה' : '') + '</div>' +
+        '</div>' +
+        '<button class="close-btn" onclick="closeModal()">&times;</button>' +
+      '</div>' +
+      '<div class="modal-body">' +
+        '<div class="detail-grid">' + fieldsHtml + longFields + '</div>' +
+        '<div class="preview-label">' +
+          '<span>תצוגה מקדימה של ההודעה</span>' +
+          '<span class="chars" id="msgChars">' + msg.length + ' תווים</span>' +
+        '</div>' +
+        '<div class="preview-box">' +
+          '<textarea id="msgArea" oninput="document.getElementById(\'msgChars\').textContent=this.value.length+\' תווים\'">' + escapeHtml(msg) + '</textarea>' +
+        '</div>' +
+        modeInfo +
+        '<div class="modal-actions">' +
+          sendBtn +
+          '<button class="btn btn-secondary" onclick="copyMessage()">' +
+            '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>' +
+            'העתק הודעה' +
+          '</button>' +
+          (already
+            ? '<button class="btn btn-ghost" onclick="unmarkSent(' + (r.form || 'null') + ')">בטל סימון נשלח</button>'
+            : '<button class="btn btn-ghost" onclick="markSent(' + (r.form || 'null') + ',\'manual\')">סמן כנשלח ידנית</button>'
+          ) +
+        '</div>' +
+      '</div>' +
+    '</div>'
+  );
+}
+
+function copyMessage() {
+  const area = document.getElementById('msgArea');
+  if (!area) return;
+  area.select();
+  area.setSelectionRange(0, 99999);
+  try { navigator.clipboard.writeText(area.value); toast('ההודעה הועתקה ללוח'); }
+  catch { document.execCommand('copy'); toast('ההודעה הועתקה'); }
+}
+
+function markSent(formNum, method) {
+  const r = state.repairs.find(x => x.form === formNum);
+  if (!r) return;
+  if (isSent(r)) return;
+  state.sentLog.unshift({
+    form: r.form, name: r.name, phone: r.phone, device: r.device,
+    method: method || 'manual', ts: Date.now(),
+  });
+  render();
+  toast('סומן כנשלח');
+  // Re-open detail if modal is open
+  const mr = document.getElementById('modalRoot');
+  if (mr.innerHTML) { closeModal(); setTimeout(() => openDetail(r), 50); }
+}
+
+function unmarkSent(formNum) {
+  state.sentLog = state.sentLog.filter(x => x.form !== formNum);
+  const r = state.repairs.find(x => x.form === formNum);
+  render();
+  toast('הוסר מהיומן');
+  const mr = document.getElementById('modalRoot');
+  if (mr.innerHTML && r) { closeModal(); setTimeout(() => openDetail(r), 50); }
+}
+
+// ----- Send via Meta API -----
+async function sendViaAPI(formNum) {
+  const r = state.repairs.find(x => x.form === formNum);
+  if (!r) return;
+  const cfg = state.config;
+  if (!cfg.phoneNumberId || !cfg.accessToken) {
+    toast('יש להגדיר Phone Number ID ו-Access Token בהגדרות');
+    return;
+  }
+  const area = document.getElementById('msgArea');
+  const msg = area ? area.value : fillTemplate(state.template, r);
+  const to = formatPhoneIntl(r.phone);
+  if (!to) { toast('מספר טלפון לא תקין'); return; }
+
+  const url = 'https://graph.facebook.com/v21.0/' + cfg.phoneNumberId + '/messages';
+  let body;
+  if (cfg.useTemplate && cfg.templateName) {
+    body = {
+      messaging_product: 'whatsapp',
+      to: to,
+      type: 'template',
+      template: {
+        name: cfg.templateName,
+        language: { code: cfg.languageCode || 'he' },
+        components: [{
+          type: 'body',
+          parameters: [
+            { type: 'text', text: r.name || 'לקוח' },
+            { type: 'text', text: r.device || '—' },
+            { type: 'text', text: (r.charge && r.charge > 0) ? String(r.charge) : '0' },
+            { type: 'text', text: String(r.form || '—') },
+          ],
+        }],
+      },
+    };
+  } else {
+    body = {
+      messaging_product: 'whatsapp',
+      to: to,
+      type: 'text',
+      text: { body: msg },
+    };
+  }
+
+  toast('שולח...');
+  try {
+    const res = await fetch(url, {
+      method: 'POST',
+      headers: {
+        'Authorization': 'Bearer ' + cfg.accessToken,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(body),
+    });
+    const data = await res.json();
+    if (res.ok) {
+      markSent(formNum, 'api');
+      toast('נשלח בהצלחה ✓');
+      closeModal();
+    } else {
+      const errMsg = (data && data.error && data.error.message) || 'שגיאה לא ידועה';
+      toast('שגיאה: ' + errMsg, 5000);
+      console.error('WA send error:', data);
+    }
+  } catch (e) {
+    toast('שגיאת רשת: ' + e.message, 5000);
+  }
+}
+
+// ----- Template Editor -----
+function openTemplateEditor() {
+  const sample = state.repairs.find(r => r.status === 'תוקן') || state.repairs[0];
+  const preview = sample ? fillTemplate(state.template, sample) : '';
+
+  openModalHTML(
+    '<div class="modal wide">' +
+      '<div class="modal-head">' +
+        '<div>' +
+          '<h2>עריכת תבנית הודעה</h2>' +
+          '<div class="sub">משתנים זמינים - לחיצה תוסיף אותם לתבנית</div>' +
+        '</div>' +
+        '<button class="close-btn" onclick="closeModal()">&times;</button>' +
+      '</div>' +
+      '<div class="modal-body">' +
+        '<div class="form-field">' +
+          '<label>תבנית ההודעה</label>' +
+          '<textarea id="tplArea" rows="12" oninput="refreshTplPreview()">' + escapeHtml(state.template) + '</textarea>' +
+          '<div class="var-chips">' +
+            ['name','device','issue','fixed','form','price','phone','received','status','business','hours','address']
+              .map(v => '<button class="var-chip" onclick="insertVar(\'' + v + '\')">{' + v + '}</button>').join('') +
+          '</div>' +
+          '<div class="hint">הטקסט בתוך *כוכביות* יוצג מודגש בוואטסאפ</div>' +
+        '</div>' +
+        '<div class="preview-label">' +
+          '<span>תצוגה מקדימה (' + (sample ? escapeHtml(sample.name) : 'אין דוגמה') + ')</span>' +
+        '</div>' +
+        '<div class="preview-box">' +
+          '<div id="tplPreview" style="white-space:pre-wrap;font-family:inherit;font-size:14px;line-height:1.55;">' + escapeHtml(preview) + '</div>' +
+        '</div>' +
+        '<div class="modal-actions">' +
+          '<button class="btn btn-primary" style="background:var(--brand);" onclick="saveTemplate()">שמור תבנית</button>' +
+          '<button class="btn btn-secondary" onclick="resetTemplate()">אפס לברירת מחדל</button>' +
+          '<button class="btn btn-ghost" onclick="closeModal()">ביטול</button>' +
+        '</div>' +
+      '</div>' +
+    '</div>'
+  );
+}
+window.insertVar = function(v) {
+  const area = document.getElementById('tplArea');
+  const pos = area.selectionStart;
+  const txt = '{' + v + '}';
+  area.value = area.value.slice(0, pos) + txt + area.value.slice(area.selectionEnd);
+  area.focus();
+  area.setSelectionRange(pos + txt.length, pos + txt.length);
+  refreshTplPreview();
+};
+window.refreshTplPreview = function() {
+  const area = document.getElementById('tplArea');
+  const sample = state.repairs.find(r => r.status === 'תוקן') || state.repairs[0];
+  if (!sample || !area) return;
+  const rendered = fillTemplate(area.value, sample);
+  document.getElementById('tplPreview').textContent = rendered;
+};
+window.saveTemplate = function() {
+  const area = document.getElementById('tplArea');
+  state.template = area.value;
+  closeModal();
+  toast('התבנית נשמרה');
+};
+window.resetTemplate = function() {
+  document.getElementById('tplArea').value = DEFAULT_TEMPLATE;
+  refreshTplPreview();
+};
+
+// ----- Settings -----
+function openSettings() {
+  const c = state.config;
+  openModalHTML(
+    '<div class="modal">' +
+      '<div class="modal-head">' +
+        '<div>' +
+          '<h2>הגדרות שליחה</h2>' +
+          '<div class="sub">בחרי את אופן השליחה של הודעות הוואטסאפ</div>' +
+        '</div>' +
+        '<button class="close-btn" onclick="closeModal()">&times;</button>' +
+      '</div>' +
+      '<div class="modal-body">' +
+        '<div class="tabs">' +
+          '<button class="tab ' + (c.mode === 'wame' ? 'active' : '') + '" onclick="cfgMode(\'wame\')">wa.me (ידני)</button>' +
+          '<button class="tab ' + (c.mode === 'meta' ? 'active' : '') + '" onclick="cfgMode(\'meta\')">Meta API (אוטומטי)</button>' +
+        '</div>' +
+        '<div id="cfgBody"></div>' +
+        '<div class="modal-actions">' +
+          '<button class="btn btn-primary" style="background:var(--brand);" onclick="saveSettings()">שמור הגדרות</button>' +
+          '<button class="btn btn-ghost" onclick="closeModal()">ביטול</button>' +
+        '</div>' +
+      '</div>' +
+    '</div>'
+  );
+  renderCfgBody();
+}
+window.cfgMode = function(mode) {
+  state.config.mode = mode;
+  openSettings();
+};
+function renderCfgBody() {
+  const c = state.config;
+  const body = document.getElementById('cfgBody');
+  if (!body) return;
+  if (c.mode === 'wame') {
+    body.innerHTML =
+      '<p style="font-size:13px;color:var(--ink-2);margin-bottom:14px;line-height:1.5;">' +
+        'במצב זה לחיצה על "פתח בוואטסאפ" תפתח חלון וואטסאפ חדש עם ההודעה מוכנה. ' +
+        'מתאים לשליחה מהטלפון - במיוחד אם אין לך עדיין גישה ל-Meta Business API.' +
+      '</p>' +
+      '<div class="form-field">' +
+        '<label>שם העסק (להכנסה בתבנית)</label>' +
+        '<input id="cfgBusinessName" value="' + escapeHtml(c.businessName) + '">' +
+      '</div>' +
+      '<div class="form-field">' +
+        '<label>שעות פעילות</label>' +
+        '<input id="cfgBusinessHours" value="' + escapeHtml(c.businessHours) + '">' +
+      '</div>' +
+      '<div class="form-field">' +
+        '<label>כתובת (אופציונלי)</label>' +
+        '<input id="cfgBusinessAddress" value="' + escapeHtml(c.businessAddress) + '" placeholder="למשל: רחוב הרצל 10, פתח תקווה">' +
+      '</div>';
+  } else {
+    body.innerHTML =
+      '<p style="font-size:13px;color:var(--ink-2);margin-bottom:14px;line-height:1.5;">' +
+        'שליחה ישירות דרך Meta WhatsApp Cloud API. דורש: WhatsApp Business Account מאומת, Phone Number ID, ו-Access Token.' +
+      '</p>' +
+      '<div class="form-field">' +
+        '<label>Phone Number ID</label>' +
+        '<input id="cfgPNID" value="' + escapeHtml(c.phoneNumberId) + '" placeholder="123456789012345">' +
+        '<div class="hint">נמצא ב-Meta Developers → WhatsApp → API Setup</div>' +
+      '</div>' +
+      '<div class="form-field">' +
+        '<label>Access Token</label>' +
+        '<input id="cfgToken" type="password" value="' + escapeHtml(c.accessToken) + '" placeholder="EAAxxxx...">' +
+        '<div class="hint">מומלץ להשתמש ב-Permanent Token של System User</div>' +
+      '</div>' +
+      '<div class="form-field">' +
+        '<label>' +
+          '<input type="checkbox" id="cfgUseTemplate" ' + (c.useTemplate ? 'checked' : '') + ' onchange="document.getElementById(\'tplFields\').style.display=this.checked?\'block\':\'none\'" style="width:auto;margin-left:6px;vertical-align:middle;">' +
+          'שלח כ-Template (נדרש מחוץ לחלון 24 שעות)' +
+        '</label>' +
+      '</div>' +
+      '<div id="tplFields" style="display:' + (c.useTemplate ? 'block' : 'none') + ';">' +
+        '<div class="form-field">' +
+          '<label>Template Name</label>' +
+          '<input id="cfgTName" value="' + escapeHtml(c.templateName) + '" placeholder="repair_ready_notification">' +
+        '</div>' +
+        '<div class="form-field">' +
+          '<label>Language Code</label>' +
+          '<input id="cfgLang" value="' + escapeHtml(c.languageCode) + '" placeholder="he">' +
+        '</div>' +
+        '<div class="hint" style="margin-bottom:12px;">התבנית צריכה לקבל 4 משתנים לפי סדר: שם, דגם, מחיר, מספר טופס</div>' +
+      '</div>' +
+      '<div class="form-field">' +
+        '<label>שם העסק</label>' +
+        '<input id="cfgBusinessName" value="' + escapeHtml(c.businessName) + '">' +
+      '</div>' +
+      '<div class="form-field">' +
+        '<label>שעות פעילות</label>' +
+        '<input id="cfgBusinessHours" value="' + escapeHtml(c.businessHours) + '">' +
+      '</div>';
+  }
+}
+window.saveSettings = function() {
+  const c = state.config;
+  const g = (id) => { const el = document.getElementById(id); return el ? el.value : ''; };
+  const gc = (id) => { const el = document.getElementById(id); return el ? el.checked : false; };
+  c.businessName = g('cfgBusinessName') || c.businessName;
+  c.businessHours = g('cfgBusinessHours') || c.businessHours;
+  if (document.getElementById('cfgBusinessAddress')) c.businessAddress = g('cfgBusinessAddress');
+  if (c.mode === 'meta') {
+    c.phoneNumberId = g('cfgPNID').trim();
+    c.accessToken = g('cfgToken').trim();
+    c.useTemplate = gc('cfgUseTemplate');
+    c.templateName = g('cfgTName').trim();
+    c.languageCode = g('cfgLang').trim() || 'he';
+  }
+  closeModal();
+  render();
+  toast('ההגדרות נשמרו');
+};
+
+// ----- Log Viewer -----
+function openLog() {
+  const items = state.sentLog;
+  const body = items.length === 0
+    ? '<div class="empty"><div class="big">📭</div><div>עדיין לא נשלחו הודעות בסשן זה</div></div>'
+    : items.map(x => {
+        const when = new Date(x.ts).toLocaleString('he-IL');
+        const method = x.method === 'api' ? 'API' : x.method === 'wame' ? 'wa.me' : 'ידני';
+        return '<div class="log-item">' +
+          '<div>' +
+            '<div style="font-weight:600;">' + escapeHtml(x.name || 'לקוח') + ' · ' + escapeHtml(x.device || '') + '</div>' +
+            '<div style="font-size:11.5px;color:var(--ink-3);margin-top:2px;">טופס #' + (x.form || '—') + ' · ' + formatPhoneDisplay(x.phone) + '</div>' +
+          '</div>' +
+          '<div style="text-align:left;">' +
+            '<div class="log-method ' + (x.method === 'api' ? 'api' : '') + '">' + method + '</div>' +
+            '<div class="when" style="margin-top:3px;">' + when + '</div>' +
+          '</div>' +
+        '</div>';
+      }).join('');
+
+  openModalHTML(
+    '<div class="modal">' +
+      '<div class="modal-head">' +
+        '<div>' +
+          '<h2>יומן שליחות</h2>' +
+          '<div class="sub">היסטוריה בסשן הנוכחי · ' + items.length + ' הודעות</div>' +
+        '</div>' +
+        '<button class="close-btn" onclick="closeModal()">&times;</button>' +
+      '</div>' +
+      '<div class="modal-body">' + body +
+        (items.length > 0 ? '<div class="modal-actions"><button class="btn btn-secondary" onclick="clearLog()">נקה יומן</button><button class="btn btn-ghost" onclick="closeModal()">סגור</button></div>' : '') +
+      '</div>' +
+    '</div>'
+  );
+}
+window.clearLog = function() {
+  if (confirm('לנקות את כל יומן השליחות?')) {
+    state.sentLog = [];
+    render();
+    closeModal();
+  }
+};
+
+// ========== Init ==========
+function init() {
+  state.repairs = (window.REPAIRS_DATA || []).slice();
+
+  document.getElementById('searchBox').addEventListener('input', (e) => {
+    state.search = e.target.value;
+    renderGrid();
+  });
+  document.getElementById('sortSel').addEventListener('change', (e) => {
+    state.sort = e.target.value;
+    renderGrid();
+  });
+
+  document.getElementById('btnSettings').onclick = openSettings;
+  document.getElementById('btnSettings2').onclick = openSettings;
+  document.getElementById('btnTemplate').onclick = openTemplateEditor;
+  document.getElementById('btnTemplate2').onclick = openTemplateEditor;
+  document.getElementById('btnLog').onclick = openLog;
+
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') closeModal();
+  });
+
+  render();
+}
+
+init();
+</script>
+</body>
+</html>
