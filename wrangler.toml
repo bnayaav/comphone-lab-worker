@@ -1,38 +1,3 @@
-# wrangler.toml - ComPhone Lab Worker
-# ====================================
-# Deploy steps:
-#   1. npm install -g wrangler   (if not installed)
-#   2. wrangler login
-#   3. wrangler kv namespace create LAB_KV
-#      -> copy the ID printed, paste below into kv_namespaces.id
-#   4. wrangler secret put SYNC_KEY     (enter a long random string)
-#   5. wrangler secret put ADMIN_KEY    (enter a different long random string)
-#   6. (optional) wrangler secret put META_TOKEN
-#   7. (optional) wrangler secret put META_PHONE_NUMBER_ID
-#   8. wrangler deploy
-
-name = "comphone-lab"
+name = "comphone-lab-worker"
 main = "worker.js"
 compatibility_date = "2025-01-15"
-
-# KV namespace for state
-[[kv_namespaces]]
-binding = "LAB_KV"
-id = "PASTE_YOUR_KV_ID_HERE"
-
-# Optional: custom route on your domain
-# [[routes]]
-# pattern = "lab-api.bnaya-av.workers.dev/*"
-# zone_name = "bnaya-av.workers.dev"
-
-# Public environment variables (non-secret):
-[vars]
-# SERVICE_NAME = "comphone-lab"
-
-# Secrets are set via `wrangler secret put NAME` - DO NOT commit them here.
-# Required secrets:
-#   SYNC_KEY  - bearer for scraper
-#   ADMIN_KEY - bearer for admin PWA
-# Optional secrets:
-#   META_TOKEN            - Meta Graph API access token
-#   META_PHONE_NUMBER_ID  - Meta WhatsApp phone number ID
