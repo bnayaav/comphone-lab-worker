@@ -2153,7 +2153,6 @@ async function sendWhatsApp(cfg, to, message, repair) {
   }
 
   const url = `https://graph.facebook.com/${GRAPH_API_VERSION}/${cfg.phoneNumberId}/messages`;
-  console.log('[WA] Sending to:', intl, '| PhoneID:', cfg.phoneNumberId?.slice(0,4) + '***');
   try {
     const res = await fetch(url, {
       method: 'POST',
@@ -2164,7 +2163,6 @@ async function sendWhatsApp(cfg, to, message, repair) {
       body: JSON.stringify(body),
     });
     const data = await res.json().catch(() => ({}));
-    console.log('[WA] Meta response status:', res.status, '| data:', JSON.stringify(data));
     if (res.ok) {
       return { ok: true, messageId: data.messages?.[0]?.id, response: data };
     } else {
