@@ -33,6 +33,11 @@ const PWA_HTML = `<!DOCTYPE html>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <meta name="theme-color" content="#0b3d3a">
+<link rel="manifest" href="/manifest.json">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="ComPhone Lab">
+<link rel="apple-touch-icon" href="/icon-192.png">
 <title>מעבדה · ComPhone (מחובר)</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -897,6 +902,229 @@ code, .mono { font-family: 'JetBrains Mono', ui-monospace, monospace; font-size:
   50% { opacity: .5; transform: scale(1.2); }
   100% { opacity: 1; transform: scale(1); }
 }
+
+/* ========== Install PWA Popup ========== */
+.install-overlay {
+  position: fixed; inset: 0;
+  background: rgba(10, 10, 10, 0.85);
+  backdrop-filter: blur(12px);
+  display: flex; align-items: center; justify-content: center;
+  z-index: 200;
+  padding: 20px;
+  animation: overlayFade .3s ease;
+}
+@keyframes overlayFade { from { opacity: 0; } }
+
+.install-card {
+  background: linear-gradient(135deg, #ffffff 0%, #f6f3ec 100%);
+  border-radius: 24px;
+  padding: 32px 24px 24px;
+  width: 100%;
+  max-width: 380px;
+  position: relative;
+  box-shadow: 0 25px 60px rgba(0,0,0,.3);
+  animation: cardPop .4s cubic-bezier(.2,.8,.3,1.1);
+  overflow: hidden;
+}
+@keyframes cardPop { from { transform: scale(.9) translateY(20px); opacity: 0; } }
+
+.install-card::before {
+  content: "";
+  position: absolute;
+  top: -60px; right: -60px;
+  width: 200px; height: 200px;
+  background: radial-gradient(circle, rgba(234,88,12,.12), transparent 70%);
+  border-radius: 50%;
+}
+.install-card::after {
+  content: "";
+  position: absolute;
+  bottom: -80px; left: -60px;
+  width: 200px; height: 200px;
+  background: radial-gradient(circle, rgba(11,61,58,.1), transparent 70%);
+  border-radius: 50%;
+}
+
+.install-close {
+  position: absolute;
+  top: 14px; left: 14px;
+  width: 32px; height: 32px;
+  background: rgba(0,0,0,.05);
+  border: none;
+  border-radius: 50%;
+  cursor: pointer;
+  font-size: 16px;
+  color: #666;
+  display: grid;
+  place-items: center;
+  z-index: 3;
+  transition: all .15s;
+}
+.install-close:hover { background: rgba(0,0,0,.1); color: #000; }
+
+.install-logo {
+  width: 104px; height: 104px;
+  margin: 0 auto 18px;
+  background: linear-gradient(135deg, #0b3d3a, #0f5650);
+  border-radius: 26px;
+  display: grid;
+  place-items: center;
+  color: #e9f3f1;
+  font-weight: 800;
+  font-size: 38px;
+  letter-spacing: -.02em;
+  box-shadow:
+    inset 0 -3px 0 rgba(0,0,0,.18),
+    0 12px 30px rgba(11,61,58,.35),
+    0 4px 10px rgba(11,61,58,.25);
+  position: relative;
+  z-index: 2;
+  animation: logoFloat 3s ease-in-out infinite;
+}
+@keyframes logoFloat {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-4px); }
+}
+.install-logo::after {
+  content: "🔧";
+  position: absolute;
+  bottom: -6px; right: -6px;
+  width: 36px; height: 36px;
+  background: #ea580c;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  font-size: 18px;
+  border: 3px solid white;
+  animation: wrench 4s ease-in-out infinite;
+}
+@keyframes wrench {
+  0%, 90%, 100% { transform: rotate(0); }
+  95% { transform: rotate(25deg); }
+}
+
+.install-title {
+  text-align: center;
+  font-size: 22px;
+  font-weight: 800;
+  letter-spacing: -.02em;
+  color: #0a0a0a;
+  margin-bottom: 4px;
+  position: relative;
+  z-index: 2;
+}
+.install-subtitle {
+  text-align: center;
+  font-size: 14px;
+  color: #666;
+  margin-bottom: 22px;
+  line-height: 1.5;
+  position: relative;
+  z-index: 2;
+}
+.install-features {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 22px;
+  position: relative;
+  z-index: 2;
+}
+.install-features li {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 9px 0;
+  font-size: 13.5px;
+  color: #333;
+  border-bottom: 1px dashed #e4dfd4;
+}
+.install-features li:last-child { border-bottom: none; }
+.install-features .ico {
+  width: 28px; height: 28px;
+  background: rgba(11,61,58,.08);
+  border-radius: 8px;
+  display: grid;
+  place-items: center;
+  font-size: 14px;
+  flex-shrink: 0;
+}
+
+.install-btn {
+  width: 100%;
+  padding: 14px;
+  background: linear-gradient(135deg, #0b3d3a, #0f5650);
+  color: white;
+  border: none;
+  border-radius: 14px;
+  font-family: inherit;
+  font-size: 15.5px;
+  font-weight: 700;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  position: relative;
+  z-index: 2;
+  box-shadow: 0 8px 20px rgba(11,61,58,.3);
+  transition: all .2s;
+}
+.install-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 25px rgba(11,61,58,.4);
+}
+.install-btn:active { transform: translateY(0); }
+
+.install-skip {
+  width: 100%;
+  padding: 12px;
+  background: transparent;
+  color: #888;
+  border: none;
+  border-radius: 10px;
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  margin-top: 6px;
+  position: relative;
+  z-index: 2;
+}
+.install-skip:hover { color: #333; background: rgba(0,0,0,.04); }
+
+.install-ios-steps {
+  background: #f6f3ec;
+  border: 1px solid #e4dfd4;
+  border-radius: 12px;
+  padding: 14px;
+  margin-top: 12px;
+  font-size: 13px;
+  color: #3f3f3f;
+  line-height: 1.7;
+  position: relative;
+  z-index: 2;
+  display: none;
+}
+.install-ios-steps.show { display: block; }
+.install-ios-steps b { color: #0b3d3a; }
+.install-ios-steps .step {
+  display: flex;
+  gap: 8px;
+  padding: 4px 0;
+  align-items: center;
+}
+.install-ios-steps .num {
+  width: 22px; height: 22px;
+  background: #0b3d3a;
+  color: white;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  font-size: 12px;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
 .hidden { display: none !important; }
 </style>
 </head>
@@ -1016,6 +1244,34 @@ code, .mono { font-family: 'JetBrains Mono', ui-monospace, monospace; font-size:
     <div>לא נמצאו תיקונים העונים על הסינון</div>
   </div>
 
+</div>
+
+
+<div id="installOverlay" class="install-overlay hidden">
+  <div class="install-card">
+    <button class="install-close" onclick="dismissInstallPopup(true)" aria-label="סגור">×</button>
+    <div class="install-logo">CP</div>
+    <div class="install-title">ComPhone Lab</div>
+    <div class="install-subtitle">התקן את האפליקציה במסך הבית לגישה מהירה ושליחת וואטסאפ ללקוחות</div>
+    <ul class="install-features">
+      <li><span class="ico">⚡</span> טעינה מהירה כמו אפליקציה</li>
+      <li><span class="ico">📲</span> מסך מלא ללא שורת כתובת</li>
+      <li><span class="ico">🔔</span> גישה מהירה לניהול תיקונים</li>
+      <li><span class="ico">💬</span> שליחת וואטסאפ בלחיצה</li>
+    </ul>
+    <button class="install-btn" id="installBtn" onclick="triggerInstall()">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="M7 10l5 5 5-5"/><path d="M12 15V3"/></svg>
+      <span id="installBtnText">התקן עכשיו</span>
+    </button>
+    <button class="install-skip" onclick="dismissInstallPopup(false)">אולי אחר כך</button>
+
+    <div class="install-ios-steps" id="iosSteps">
+      <div style="margin-bottom:8px;"><b>להתקנה ב-iPhone/iPad:</b></div>
+      <div class="step"><span class="num">1</span><span>לחץ על <b>שתף</b> <svg style="vertical-align:middle" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/></svg> בתחתית המסך</span></div>
+      <div class="step"><span class="num">2</span><span>גלול ובחר <b>הוסף למסך הבית</b></span></div>
+      <div class="step"><span class="num">3</span><span>לחץ <b>הוסף</b> בפינה העליונה</span></div>
+    </div>
+  </div>
 </div>
 
 <div id="modalRoot"></div>
@@ -1944,6 +2200,94 @@ function init() {
 }
 
 init();
+
+
+// ========== PWA Install Popup ==========
+let deferredPrompt = null;
+
+window.addEventListener('beforeinstallprompt', (e) => {
+  e.preventDefault();
+  deferredPrompt = e;
+  maybeShowInstallPopup();
+});
+
+window.addEventListener('appinstalled', () => {
+  localStorage.setItem('pwaInstalled', '1');
+  const ov = document.getElementById('installOverlay');
+  if (ov) ov.classList.add('hidden');
+});
+
+function isStandalone() {
+  return window.matchMedia('(display-mode: standalone)').matches
+      || window.navigator.standalone === true
+      || document.referrer.startsWith('android-app://');
+}
+
+function isIOS() {
+  return /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+}
+
+function maybeShowInstallPopup() {
+  if (isStandalone() || localStorage.getItem('pwaInstalled') === '1') return;
+  const dismissed = localStorage.getItem('installDismissed');
+  // Re-prompt after 7 days if just skipped
+  if (dismissed && Date.now() - Number(dismissed) < 7 * 24 * 60 * 60 * 1000) return;
+
+  const overlay = document.getElementById('installOverlay');
+  if (!overlay) return;
+
+  const btnText = document.getElementById('installBtnText');
+  const iosSteps = document.getElementById('iosSteps');
+  const installBtn = document.getElementById('installBtn');
+
+  if (isIOS()) {
+    if (btnText) btnText.textContent = 'הראה לי איך';
+    if (installBtn) installBtn.onclick = () => {
+      iosSteps?.classList.toggle('show');
+    };
+  } else if (!deferredPrompt) {
+    // Other browsers without install support — show skip-only
+    const android = /Android/i.test(navigator.userAgent);
+    if (!android) return; // not mobile, likely desktop chrome etc - skip
+  }
+
+  overlay.classList.remove('hidden');
+}
+
+async function triggerInstall() {
+  if (isIOS()) {
+    document.getElementById('iosSteps')?.classList.toggle('show');
+    return;
+  }
+  if (!deferredPrompt) {
+    dismissInstallPopup(false);
+    return;
+  }
+  deferredPrompt.prompt();
+  const { outcome } = await deferredPrompt.userChoice;
+  deferredPrompt = null;
+  if (outcome === 'accepted') {
+    localStorage.setItem('pwaInstalled', '1');
+  }
+  document.getElementById('installOverlay')?.classList.add('hidden');
+}
+
+function dismissInstallPopup(permanent) {
+  document.getElementById('installOverlay')?.classList.add('hidden');
+  localStorage.setItem('installDismissed', String(Date.now()));
+  if (permanent) localStorage.setItem('installDismissedPermanent', '1');
+}
+
+// Show popup on iOS after 3 seconds (it has no beforeinstallprompt event)
+setTimeout(() => {
+  if (isIOS() && !isStandalone()) maybeShowInstallPopup();
+}, 3000);
+
+// Register service worker for PWA support
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('/sw.js').catch(() => {});
+}
+
 </script>
 </body>
 </html>
@@ -2448,6 +2792,68 @@ export default {
       if (p === '/' && m === 'GET') {
         return new Response(PWA_HTML, {
           headers: { 'Content-Type': 'text/html; charset=utf-8', 'Cache-Control': 'no-cache' },
+        });
+      }
+      if (p === '/manifest.json' && m === 'GET') {
+        return new Response(JSON.stringify({
+          name: 'ComPhone Lab - מעבדת תיקונים',
+          short_name: 'ComPhone Lab',
+          description: 'ניהול תיקוני מעבדה ושליחת וואטסאפ ללקוחות',
+          start_url: '/',
+          display: 'standalone',
+          orientation: 'portrait',
+          background_color: '#f6f3ec',
+          theme_color: '#0b3d3a',
+          dir: 'rtl',
+          lang: 'he',
+          icons: [
+            { src: '/icon-192.png', sizes: '192x192', type: 'image/png', purpose: 'any maskable' },
+            { src: '/icon-512.png', sizes: '512x512', type: 'image/png', purpose: 'any maskable' },
+          ],
+        }), {
+          headers: { 'Content-Type': 'application/manifest+json; charset=utf-8', 'Cache-Control': 'public, max-age=86400' },
+        });
+      }
+      if (p === '/sw.js' && m === 'GET') {
+        const sw = `
+          const CACHE = 'comphone-lab-v1';
+          self.addEventListener('install', e => self.skipWaiting());
+          self.addEventListener('activate', e => e.waitUntil(self.clients.claim()));
+          self.addEventListener('fetch', e => {
+            // Network first, fallback to cache (for offline)
+            if (e.request.method !== 'GET') return;
+            e.respondWith(
+              fetch(e.request).then(r => {
+                if (r.ok && e.request.url.startsWith(self.location.origin)) {
+                  const clone = r.clone();
+                  caches.open(CACHE).then(c => c.put(e.request, clone));
+                }
+                return r;
+              }).catch(() => caches.match(e.request))
+            );
+          });
+        `;
+        return new Response(sw, {
+          headers: { 'Content-Type': 'application/javascript; charset=utf-8', 'Cache-Control': 'public, max-age=3600' },
+        });
+      }
+      if ((p === '/icon-192.png' || p === '/icon-512.png' || p === '/favicon.ico') && m === 'GET') {
+        // Return an SVG-based icon (browsers accept SVG as png source)
+        const size = p.includes('512') ? 512 : 192;
+        const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}" viewBox="0 0 512 512">
+          <defs>
+            <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+              <stop offset="0%" stop-color="#0b3d3a"/>
+              <stop offset="100%" stop-color="#0f5650"/>
+            </linearGradient>
+          </defs>
+          <rect width="512" height="512" rx="100" fill="url(#bg)"/>
+          <text x="256" y="310" font-family="-apple-system, Arial, sans-serif" font-size="200" font-weight="900" fill="#e9f3f1" text-anchor="middle" letter-spacing="-8">CP</text>
+          <circle cx="395" cy="395" r="55" fill="#ea580c"/>
+          <text x="395" y="418" font-size="50" text-anchor="middle">🔧</text>
+        </svg>`;
+        return new Response(svg, {
+          headers: { 'Content-Type': 'image/svg+xml', 'Cache-Control': 'public, max-age=86400' },
         });
       }
       if (p === '/health' || p === '/api/health') {
