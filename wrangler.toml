@@ -1,3 +1,7 @@
 name = "comphone-lab-worker"
 main = "worker.js"
 compatibility_date = "2025-01-15"
+
+[[kv_namespaces]]
+binding = "LAB_KV"
+id = "0b6295f016ed4efeba4498ed3176e018"
