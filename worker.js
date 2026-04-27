@@ -2278,13 +2278,16 @@ window.openEditStatus = function(formNum) {
       { key: 'מושבת',                label: 'מושבת',                color: '#b91c1c' },
       { key: 'ממתין לתשובה מלקוח',   label: 'ממתין לתשובה מלקוח',   color: '#6d28d9' },
     ];
-    const buttons = statuses.map(s =>
-      '<button class="btn" style="background:' + s.color + ';color:white;justify-content:flex-start;padding:14px;margin-bottom:6px;width:100%;font-weight:600;' +
-      (r.status === s.key ? 'opacity:.5;' : '') + '" ' +
-      "onclick=\"submitEditStatus(" + r.form + ",'" + s.key + "')\">" +
-      (r.status === s.key ? '✓ ' : '') + escapeHtml(s.label) +
-      '</button>'
-    ).join('');
+    const sCurrent = r.status || '';
+    let buttons = '';
+    for (const s of statuses) {
+      const isActive = sCurrent === s.key;
+      buttons += '<button class="btn" data-status="' + s.key + '" ' +
+                 'style="background:' + s.color + ';color:white;justify-content:flex-start;padding:14px;margin-bottom:6px;width:100%;font-weight:600;' +
+                 (isActive ? 'opacity:.5;' : '') + '">' +
+                 (isActive ? '✓ ' : '') + escapeHtml(s.label) +
+                 '</button>';
+    }
 
     openModalHTML(
       '<div class="modal">' +
@@ -2307,6 +2310,16 @@ window.openEditStatus = function(formNum) {
         '</div>' +
       '</div>'
     );
+    // Attach click handlers to the status buttons
+    setTimeout(() => {
+      const modal = document.getElementById('modalRoot');
+      if (!modal) return;
+      modal.querySelectorAll('button[data-status]').forEach(btn => {
+        btn.addEventListener('click', () => {
+          submitEditStatus(r.form, btn.getAttribute('data-status'));
+        });
+      });
+    }, 50);
   }, 100);
 };
 
