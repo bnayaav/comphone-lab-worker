@@ -2281,7 +2281,7 @@ window.openEditStatus = function(formNum) {
     const buttons = statuses.map(s =>
       '<button class="btn" style="background:' + s.color + ';color:white;justify-content:flex-start;padding:14px;margin-bottom:6px;width:100%;font-weight:600;' +
       (r.status === s.key ? 'opacity:.5;' : '') + '" ' +
-      'onclick="submitEditStatus(' + r.form + ',\\\'' + s.key + '\\\')">' +
+      "onclick=\"submitEditStatus(" + r.form + ",'" + s.key + "')\">" +
       (r.status === s.key ? '✓ ' : '') + escapeHtml(s.label) +
       '</button>'
     ).join('');
