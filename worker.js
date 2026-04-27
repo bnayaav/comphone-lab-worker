@@ -1655,6 +1655,12 @@ function openDetail(r) {
         modeInfo +
         '<div class="modal-actions">' +
           sendBtn +
+          (r.status !== 'תוקן' && r.status !== 'נמסר ללקוח'
+            ? '<button class="btn" style="background:#ea580c;color:white;" onclick="openCloseFix(' + (r.form || 'null') + ')">' +
+                '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>' +
+                'סגור תיקון' +
+              '</button>'
+            : '') +
           '<button class="btn btn-secondary" onclick="copyMessage()">' +
             '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>' +
             'העתק הודעה' +
@@ -2156,6 +2162,104 @@ window.saveWorkerConfig = async function() {
   closeModal();
   await loadFromWorker();
 };
+
+// ========== Close Fix (queue to cashier script) ==========
+window.openCloseFix = function(formNum) {
+  const r = state.repairs.find(x => x.form === formNum);
+  if (!r) { toast('תיקון לא נמצא'); return; }
+  closeModal();
+  setTimeout(() => {
+    const defaultAmount = r.charge && r.charge > 0 ? r.charge : '';
+    openModalHTML(
+      '<div class="modal">' +
+        '<div class="modal-head">' +
+          '<div>' +
+            '<h2>סגירת תיקון #' + r.form + '</h2>' +
+            '<div class="sub">' + escapeHtml(r.name || '') + ' · ' + escapeHtml(r.device || '') + '</div>' +
+          '</div>' +
+          '<button class="close-btn" onclick="closeModal()">&times;</button>' +
+        '</div>' +
+        '<div class="modal-body">' +
+          '<div style="background:#fff7ed;border:1px solid #fed7aa;color:#9a3412;padding:10px 12px;border-radius:10px;font-size:12.5px;line-height:1.5;margin-bottom:14px;">' +
+            '⚠️ הסקריפט במחשב הקופה יסגור את התיקון אוטומטית ב-NewOrder תוך מספר שניות.' +
+          '</div>' +
+          '<div class="form-field">' +
+            '<label>סכום לתשלום (₪)</label>' +
+            '<input id="closeAmount" type="number" value="' + defaultAmount + '" placeholder="250" inputmode="numeric">' +
+            '<div class="hint">הסכום שייכנס לחיוב הלקוח (costwithtax)</div>' +
+          '</div>' +
+          '<div class="form-field">' +
+            '<label>פעולות טכנאי</label>' +
+            '<textarea id="closeNotes" rows="4" placeholder="לדוגמה: החלפת מסך + הדבקה">' + escapeHtml(r.fixed || '') + '</textarea>' +
+            '<div class="hint">הטקסט שייכנס לשדה MemoTextBox ב-NewOrder</div>' +
+          '</div>' +
+          '<div class="modal-actions">' +
+            '<button class="btn btn-primary" style="background:#ea580c;" onclick="submitCloseFix(' + r.form + ')">' +
+              '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M9 11l3 3L22 4"/></svg>' +
+              'שלח לסקריפט הקופה' +
+            '</button>' +
+            '<button class="btn btn-ghost" onclick="closeModal()">ביטול</button>' +
+          '</div>' +
+        '</div>' +
+      '</div>'
+    );
+  }, 100);
+};
+
+window.submitCloseFix = async function(formNum) {
+  const amountEl = document.getElementById('closeAmount');
+  const notesEl  = document.getElementById('closeNotes');
+  const amount = parseFloat(amountEl.value);
+  const notes  = notesEl.value.trim();
+  if (isNaN(amount) || amount < 0) { toast('סכום לא תקין'); return; }
+  if (!notes) { toast('יש למלא פעולות טכנאי'); return; }
+
+  toast('שולח לסקריפט הקופה...');
+  try {
+    const res = await workerFetch('/api/close-fix', {
+      method: 'POST',
+      body: JSON.stringify({
+        fix_number: String(formNum),
+        amount: amount,
+        tech_notes: notes,
+      }),
+    });
+    if (res.ok || res.queued) {
+      closeModal();
+      toast('✓ התיקון נשלח לתור. ממתין לסקריפט...');
+      // Start polling for status
+      pollFixStatus(formNum);
+    } else {
+      toast('שגיאה: ' + (res.error || 'unknown'), 4000);
+    }
+  } catch (e) {
+    toast('שגיאה: ' + e.message, 4000);
+  }
+};
+
+// Poll status until done/failed/timeout
+async function pollFixStatus(formNum, attempts = 0) {
+  if (attempts > 60) { // 60 attempts × 3s = 3 minutes
+    toast('⏱ עבר זמן רב. בדוק ידנית ב-NewOrder.', 5000);
+    return;
+  }
+  try {
+    const res = await workerFetch('/api/fix-status/' + formNum);
+    if (res.status === 'done') {
+      toast('🎉 תיקון #' + formNum + ' נסגר בהצלחה ב-NewOrder!', 5000);
+      setTimeout(() => loadFromWorker(), 2000);
+      return;
+    }
+    if (res.status === 'failed') {
+      toast('❌ סגירה נכשלה: ' + (res.error || 'unknown'), 6000);
+      return;
+    }
+    // still pending
+    setTimeout(() => pollFixStatus(formNum, attempts + 1), 3000);
+  } catch (e) {
+    setTimeout(() => pollFixStatus(formNum, attempts + 1), 3000);
+  }
+}
 
 
 // ========== Init ==========
@@ -2777,6 +2881,119 @@ async function apiSeed(request, env) {
 }
 
 // ====================================================================
+// Pending fixes queue
+// ====================================================================
+// Flow:
+// 1. PWA -> POST /api/close-fix       (admin auth) -> queues a fix to be closed
+// 2. Cashier script -> GET /api/pending-fixes  (sync auth) -> fetches the queue
+// 3. Cashier script -> DELETE /api/pending-fixes/:n?status=done|failed (sync auth)
+// 4. PWA -> GET /api/fix-status/:n   (admin auth) -> shows result
+
+async function apiCloseFix(request, env) {
+  const gate = requireAdmin(request, env);
+  if (gate) return err(gate, 401);
+
+  let payload;
+  try { payload = await request.json(); } catch { return err('Invalid JSON'); }
+
+  const fixNumber = String(payload.fix_number || payload.form || '').trim();
+  const amount    = Number(payload.amount);
+  const techNotes = String(payload.tech_notes || '').trim();
+
+  if (!fixNumber)             return err('Missing fix_number');
+  if (isNaN(amount) || amount < 0) return err('Invalid amount');
+  if (!techNotes)             return err('Missing tech_notes');
+
+  // Check if already pending or recently processed
+  const queue = await kvGet(env, 'pending:queue', {});
+  if (queue[fixNumber]) {
+    const existing = queue[fixNumber];
+    if (existing.status === 'pending') {
+      return err('Already in queue', 409, { existing });
+    }
+  }
+
+  const id = crypto.randomUUID();
+  const entry = {
+    id,
+    fix_number: fixNumber,
+    amount,
+    tech_notes: techNotes,
+    status: 'pending',
+    queued_at: Date.now(),
+    queued_by: request.headers.get('cf-connecting-ip') || null,
+  };
+
+  queue[fixNumber] = entry;
+  await kvPut(env, 'pending:queue', queue);
+
+  return json({ ok: true, queued: true, id, entry });
+}
+
+async function apiGetPendingFixes(request, env) {
+  const gate = requireSync(request, env);
+  if (gate) return err(gate, 401);
+  const queue = await kvGet(env, 'pending:queue', {});
+  const pending = Object.values(queue).filter(e => e.status === 'pending');
+  return json(pending);
+}
+
+async function apiDeletePendingFix(request, env, path) {
+  const gate = requireSync(request, env);
+  if (gate) return err(gate, 401);
+
+  const fixNumber = decodeURIComponent(path.replace('/api/pending-fixes/', '').trim());
+  if (!fixNumber) return err('Missing fix_number in path');
+
+  const url = new URL(request.url);
+  const status = url.searchParams.get('status') || 'done';
+  const error  = url.searchParams.get('error') || null;
+
+  const queue = await kvGet(env, 'pending:queue', {});
+  const entry = queue[fixNumber];
+  if (!entry) return err('Not found in queue', 404);
+
+  if (status === 'done' || status === 'success') {
+    entry.status = 'done';
+    entry.completed_at = Date.now();
+    delete entry.error;
+  } else if (status === 'failed' || status === 'error') {
+    entry.status = 'failed';
+    entry.failed_at = Date.now();
+    entry.error = error || 'Unknown error';
+  } else {
+    return err('Invalid status. Use done or failed');
+  }
+
+  queue[fixNumber] = entry;
+  await kvPut(env, 'pending:queue', queue);
+
+  // Cleanup old completed/failed entries (older than 7 days)
+  const cutoff = Date.now() - 7 * 24 * 60 * 60 * 1000;
+  let cleaned = 0;
+  for (const [num, e] of Object.entries(queue)) {
+    if (e.status !== 'pending' && (e.completed_at || e.failed_at || 0) < cutoff) {
+      delete queue[num];
+      cleaned++;
+    }
+  }
+  if (cleaned > 0) await kvPut(env, 'pending:queue', queue);
+
+  return json({ ok: true, status: entry.status, entry });
+}
+
+async function apiFixStatus(request, env, path) {
+  const gate = requireAdmin(request, env);
+  if (gate) return err(gate, 401);
+  const fixNumber = decodeURIComponent(path.replace('/api/fix-status/', '').trim());
+  if (!fixNumber) return err('Missing fix_number in path');
+  const queue = await kvGet(env, 'pending:queue', {});
+  const entry = queue[fixNumber];
+  if (!entry) return json({ status: 'not_found', fix_number: fixNumber });
+  return json(entry);
+}
+
+// ====================================================================
 // Main router
 // ====================================================================
 export default {
@@ -2837,26 +3054,7 @@ export default {
           headers: { 'Content-Type': 'application/javascript; charset=utf-8', 'Cache-Control': 'public, max-age=3600' },
         });
       }
-      if ((p === '/icon-192.png' || p === '/icon-512.png' || p === '/favicon.ico') && m === 'GET') {
-        // Return an SVG-based icon (browsers accept SVG as png source)
-        const size = p.includes('512') ? 512 : 192;
-        const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}" viewBox="0 0 512 512">
-          <defs>
-            <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
-              <stop offset="0%" stop-color="#0b3d3a"/>
-              <stop offset="100%" stop-color="#0f5650"/>
-            </linearGradient>
-          </defs>
-          <rect width="512" height="512" rx="100" fill="url(#bg)"/>
-          <text x="256" y="310" font-family="-apple-system, Arial, sans-serif" font-size="200" font-weight="900" fill="#e9f3f1" text-anchor="middle" letter-spacing="-8">CP</text>
-          <circle cx="395" cy="395" r="55" fill="#ea580c"/>
-          <text x="395" y="418" font-size="50" text-anchor="middle">🔧</text>
-        </svg>`;
-        return new Response(svg, {
-          headers: { 'Content-Type': 'image/svg+xml', 'Cache-Control': 'public, max-age=86400' },
-        });
-      }
-      if (p === '/health' || p === '/api/health') {
+            if (p === '/health' || p === '/api/health') {
         return json({ ok: true, service: 'comphone-lab-worker', time: new Date().toISOString() });
       }
       if (p === '/api/repairs' && m === 'GET')   return apiGetRepairs(request, env);
@@ -2868,6 +3066,11 @@ export default {
       if (p === '/api/wa/log'  && m === 'DELETE')return apiClearLog(request, env);
       if (p === '/api/config'  && m === 'GET')   return apiGetConfig(request, env);
       if (p === '/api/config'  && m === 'PUT')   return apiPutConfig(request, env);
+      // Pending-fixes queue (PWA → script polling → NewOrder automation)
+      if (p === '/api/close-fix'      && m === 'POST') return apiCloseFix(request, env);
+      if (p === '/api/pending-fixes'  && m === 'GET')  return apiGetPendingFixes(request, env);
+      if (p.startsWith('/api/pending-fixes/') && m === 'DELETE') return apiDeletePendingFix(request, env, p);
+      if (p.startsWith('/api/fix-status/')    && m === 'GET')    return apiFixStatus(request, env, p);
 
       return err('Not found: ' + m + ' ' + p, 404);
     } catch (e) {
