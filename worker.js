@@ -1661,6 +1661,10 @@ function openDetail(r) {
                 'סגור תיקון' +
               '</button>'
             : '') +
+          '<button class="btn" style="background:#6d28d9;color:white;" onclick="openEditStatus(' + (r.form || 'null') + ')">' +
+            '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>' +
+            'ערוך סטטוס' +
+          '</button>' +
           '<button class="btn btn-secondary" onclick="copyMessage()">' +
             '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>' +
             'העתק הודעה' +
@@ -2261,6 +2265,71 @@ async function pollFixStatus(formNum, attempts = 0) {
   }
 }
 
+// ========== Manual Status Edit (for old repairs that need correction) ==========
+window.openEditStatus = function(formNum) {
+  const r = state.repairs.find(x => x.form === formNum);
+  if (!r) { toast('תיקון לא נמצא'); return; }
+  closeModal();
+  setTimeout(() => {
+    const statuses = [
+      { key: 'ממתין',                label: 'ממתין',                color: '#6b7280' },
+      { key: 'תוקן',                 label: 'תוקן · ממתין לאיסוף', color: '#b45309' },
+      { key: 'נמסר ללקוח',           label: 'נמסר ללקוח',           color: '#047857' },
+      { key: 'מושבת',                label: 'מושבת',                color: '#b91c1c' },
+      { key: 'ממתין לתשובה מלקוח',   label: 'ממתין לתשובה מלקוח',   color: '#6d28d9' },
+    ];
+    const buttons = statuses.map(s =>
+      '<button class="btn" style="background:' + s.color + ';color:white;justify-content:flex-start;padding:14px;margin-bottom:6px;width:100%;font-weight:600;' +
+      (r.status === s.key ? 'opacity:.5;' : '') + '" ' +
+      'onclick="submitEditStatus(' + r.form + ',\\\'' + s.key + '\\\')">' +
+      (r.status === s.key ? '✓ ' : '') + escapeHtml(s.label) +
+      '</button>'
+    ).join('');
+
+    openModalHTML(
+      '<div class="modal">' +
+        '<div class="modal-head">' +
+          '<div>' +
+            '<h2>עריכת סטטוס #' + r.form + '</h2>' +
+            '<div class="sub">' + escapeHtml(r.name || '') + ' · ' + escapeHtml(r.device || '') + '</div>' +
+          '</div>' +
+          '<button class="close-btn" onclick="closeModal()">&times;</button>' +
+        '</div>' +
+        '<div class="modal-body">' +
+          '<div style="background:#fef3c7;border:1px solid #fcd34d;color:#92400e;padding:10px 12px;border-radius:10px;font-size:12.5px;line-height:1.5;margin-bottom:14px;">' +
+            '⚠️ עדכון סטטוס ידני - <b>אינו</b> מעדכן את NewOrder ו<b>אינו</b> שולח וואטסאפ אוטומטית.<br>' +
+            'מתאים לתיקונים ישנים שצריך לתקן את הסטטוס שלהם בלבד.' +
+          '</div>' +
+          '<div style="font-size:13px;color:var(--ink-3);margin-bottom:8px;">סטטוס נוכחי: <b>' + escapeHtml(r.status || 'ללא') + '</b></div>' +
+          '<div style="font-size:13px;color:var(--ink-2);margin-bottom:10px;">בחר סטטוס חדש:</div>' +
+          buttons +
+          '<button class="btn btn-ghost" onclick="closeModal()" style="width:100%;margin-top:10px;">ביטול</button>' +
+        '</div>' +
+      '</div>'
+    );
+  }, 100);
+};
+
+window.submitEditStatus = async function(formNum, newStatus) {
+  if (!confirm('לעדכן את התיקון ל"' + newStatus + '"?\n\nשים לב: זה לא יעדכן את NewOrder.')) return;
+  toast('מעדכן...');
+  try {
+    const res = await workerFetch('/api/repair/' + formNum + '/status', {
+      method: 'PUT',
+      body: JSON.stringify({ status: newStatus }),
+    });
+    if (res.ok) {
+      closeModal();
+      toast('✓ הסטטוס עודכן ל-' + newStatus);
+      await loadFromWorker();
+    } else {
+      toast('שגיאה: ' + (res.error || 'unknown'), 4000);
+    }
+  } catch (e) {
+    toast('שגיאה: ' + e.message, 4000);
+  }
+};
+
 
 // ========== Init ==========
 function init() {
@@ -2858,6 +2927,62 @@ async function apiPutConfig(request, env) {
   return json({ ok: true, config: redactConfig(merged) });
 }
 
+async function apiUpdateRepairStatus(request, env, path) {
+  const gate = requireAdmin(request, env);
+  if (gate) return err(gate, 401);
+
+  // Extract form number from /api/repair/{form}/status
+  const m = path.match(/^\/api\/repair\/([^\/]+)\/status$/);
+  if (!m) return err('Invalid path');
+  const formNum = Number(decodeURIComponent(m[1]));
+  if (!formNum) return err('Invalid form number');
+
+  let payload;
+  try { payload = await request.json(); } catch { return err('Invalid JSON'); }
+
+  const newStatus = String(payload.status || '').trim();
+  const allowedStatuses = ['ממתין', 'תוקן', 'נמסר ללקוח', 'מושבת', 'ממתין לתשובה מלקוח'];
+  if (!allowedStatuses.includes(newStatus)) {
+    return err('Invalid status. Use one of: ' + allowedStatuses.join(', '));
+  }
+
+  const repairs = await kvGet(env, 'repairs:all', {});
+  const repair = repairs[formNum];
+  if (!repair) return err('Repair not found', 404);
+
+  const oldStatus = repair.status;
+  repair.status = newStatus;
+
+  // Optionally update charge/fixed if provided
+  if (payload.charge != null) {
+    const c = Number(payload.charge);
+    if (!isNaN(c) && c >= 0) repair.charge = c;
+  }
+  if (payload.fixed) {
+    repair.fixed = String(payload.fixed);
+  }
+
+  // If the repair is being marked as 'נמסר ללקוח', set the delivery date
+  if (newStatus === 'נמסר ללקוח' && !repair.delivered) {
+    const now = new Date();
+    repair.delivered = `${String(now.getDate()).padStart(2,'0')}/${String(now.getMonth()+1).padStart(2,'0')}/${now.getFullYear()} ${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
+  }
+
+  repairs[formNum] = repair;
+  await kvPut(env, 'repairs:all', repairs);
+
+  // Don't auto-send WhatsApp for manual updates - that's the user's choice
+  // (they can use the WA button separately if they want to notify)
+
+  return json({
+    ok: true,
+    form: formNum,
+    from: oldStatus,
+    to: newStatus,
+    repair,
+  });
+}
+
 async function apiSeed(request, env) {
   const gate = requireSync(request, env);
   if (gate) return err(gate, 401);
@@ -3117,6 +3242,9 @@ export default {
       if (p === '/api/wa/log'  && m === 'DELETE')return apiClearLog(request, env);
       if (p === '/api/config'  && m === 'GET')   return apiGetConfig(request, env);
       if (p === '/api/config'  && m === 'PUT')   return apiPutConfig(request, env);
+      // Manual status update for existing repairs (admin)
+      if (p.startsWith('/api/repair/') && p.endsWith('/status') && m === 'PUT')
+        return apiUpdateRepairStatus(request, env, p);
       // Pending-fixes queue (PWA → script polling → NewOrder automation)
       if (p === '/api/close-fix'      && m === 'POST') return apiCloseFix(request, env);
       if (p === '/api/pending-fixes'  && m === 'GET')  return apiGetPendingFixes(request, env);
