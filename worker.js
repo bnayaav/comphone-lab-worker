@@ -2957,6 +2957,57 @@ async function apiDeletePendingFix(request, env, path) {
     entry.status = 'done';
     entry.completed_at = Date.now();
     delete entry.error;
+
+    // Optimistic update: mark the repair as 'תוקן' immediately in KV
+    // so the PWA reflects the change without waiting for next NewOrder sync.
+    try {
+      const repairs = await kvGet(env, 'repairs:all', {});
+      const formNum = Number(fixNumber);
+      const repair = repairs[formNum] || repairs[fixNumber];
+      if (repair) {
+        const oldStatus = repair.status;
+        repair.status = 'תוקן';
+        if (entry.amount != null) repair.charge = entry.amount;
+        if (entry.tech_notes)     repair.fixed = entry.tech_notes;
+        repairs[repair.form] = repair;
+        await kvPut(env, 'repairs:all', repairs);
+        entry.optimistic_update = { from: oldStatus, to: 'תוקן' };
+
+        // Auto-send WhatsApp if config allows and not already sent
+        try {
+          const cfg = await loadConfig(env);
+          const sentLog = await kvGet(env, 'log:sent', []);
+          const sentForms = new Set(sentLog.map(x => x.form));
+          if (cfg.autoSend && cfg.sendMode === 'meta'
+              && cfg.autoSendTriggers.includes('תוקן')
+              && repair.phone && !sentForms.has(repair.form)) {
+            const message = fillTemplate(cfg.template, repair, cfg);
+            const waRes = await sendWhatsApp(cfg, repair.phone, message, repair);
+            if (waRes.ok) {
+              sentLog.unshift({
+                form: repair.form,
+                name: repair.name,
+                phone: repair.phone,
+                device: repair.device,
+                method: 'auto-close',
+                ts: Date.now(),
+                messageId: waRes.messageId,
+              });
+              await kvPut(env, 'log:sent', sentLog.slice(0, 500));
+              entry.whatsapp_sent = { ok: true, messageId: waRes.messageId };
+            } else {
+              entry.whatsapp_sent = { ok: false, error: waRes.error };
+            }
+          }
+        } catch (waErr) {
+          entry.whatsapp_sent = { ok: false, error: 'send error: ' + waErr.message };
+        }
+      }
+    } catch (e) {
+      // Don't fail the request if optimistic update fails - it'll catch up
+      // on the next NewOrder sync run anyway.
+      console.warn('Optimistic repair update failed:', e.message);
+    }
   } else if (status === 'failed' || status === 'error') {
     entry.status = 'failed';
     entry.failed_at = Date.now();
